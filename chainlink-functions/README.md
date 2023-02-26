@@ -1,472 +1,202 @@
-<br/>
-<p align="center">
-<a href="https://chain.link" target="_blank">
-<img src="./box-img-lg.png" width="225" alt="Chainlink Hardhat logo">
-</a>
-</p>
-<br/>
+# Chainlink Functions Starter Kit
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/smartcontractkit/hardhat-starter-kit)
-
-[![GitPOAP Badge](https://public-api.gitpoap.io/v1/repo/smartcontractkit/hardhat-starter-kit/badge)](https://www.gitpoap.io/gp/649)
-
-- [Chainlink Hardhat Starter Kit](#chainlink-hardhat-starter-kit)
-- [Getting Started](#getting-started)
+- [Chainlink Functions Starter Kit](#chainlink-functions-starter-kit)
+- [Overview](#overview)
+- [Quickstart](#quickstart)
   - [Requirements](#requirements)
-  - [Quickstart](#quickstart)
-    - [Typescript](#typescript)
-- [Usage](#usage)
-  - [Deploying Contracts](#deploying-contracts)
-  - [Run a Local Network](#run-a-local-network)
-  - [Using a Testnet or Live Network (like Mainnet or Polygon)](#using-a-testnet-or-live-network-like-mainnet-or-polygon)
-    - [Sepolia Ethereum Testnet Setup](#sepolia-ethereum-testnet-setup)
-  - [Forking](#forking)
-  - [Auto-Funding](#auto-funding)
-- [Test](#test)
-- [Interacting with Deployed Contracts](#interacting-with-deployed-contracts)
-  - [Chainlink Price Feeds](#chainlink-price-feeds)
-  - [Request & Receive Data](#request--receive-data)
-  - [VRF Get a random number](#vrf-get-a-random-number)
-  - [Keepers](#keepers)
-  - [Verify on Etherscan](#verify-on-etherscan)
-- [View Contracts Size](#view-contracts-size)
-- [Linting](#linting)
-- [Code Formatting](#code-formatting)
-- [Estimating Gas](#estimating-gas)
-- [Code Coverage](#code-coverage)
-- [Fuzzing](#fuzzing)
-- [Contributing](#contributing)
-- [Thank You!](#thank-you)
-  - [Resources](#resources)
+  - [Steps](#steps)
+- [Command Glossary](#command-glossary)
+    - [Functions Commands](#functions-commands)
+    - [Functions Subscription Management Commands](#functions-subscription-management-commands)
+- [Request Configuration](#request-configuration)
+  - [JavaScript Code](#javascript-code)
+    - [Functions Library](#functions-library)
+  - [Modifying Contracts](#modifying-contracts)
+  - [Simulating Requests](#simulating-requests)
+  - [Off-chain Secrets](#off-chain-secrets)
+- [Automation Integration](#automation-integration)
 
-# Chainlink Hardhat Starter Kit
- Implementation of the following 4 Chainlink features using the [Hardhat](https://hardhat.org/) development environment:
- - [Chainlink Price Feeds](https://docs.chain.link/docs/using-chainlink-reference-contracts)
- - [Chainlink VRF](https://docs.chain.link/docs/chainlink-vrf)
- - [Chainlink Keepers](https://docs.chain.link/docs/chainlink-keepers/introduction/)
- - [Request & Receive data](https://docs.chain.link/docs/request-and-receive-data)
+# Overview
 
-# Getting Started 
+<p><b>This project is currently in a closed beta. Request access to send on-chain requests here <a href="https://functions.chain.link/">https://functions.chain.link/</a></b></p>
 
-It's recommended that you've gone through the [hardhat getting started documentation](https://hardhat.org/getting-started/) before proceeding here. 
+<p>Chainlink Functions allows users to request data from almost any API and perform custom computation using JavaScript.</p>
+<p>It works by using a <a href="https://chain.link/education/blockchain-oracles#decentralized-oracles">decentralized oracle network</a> (DON).<br>When a request is initiated, each node in the DON executes the user-provided JavaScript code simultaneously.  Then, nodes use the <a href="https://docs.chain.link/architecture-overview/off-chain-reporting/">Chainlink OCR</a> protocol to come to consensus on the results.  Finally, the median result is returned to the requesting contract via a callback function.</p>
+<p>Chainlink Functions also enables users to share encrypted secrets with each node in the DON.  This allows users to access to APIs that require authentication, without exposing their API keys to the general public.
+
+# Quickstart
 
 ## Requirements
 
-- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-  - You'll know you did it right if you can run `git --version` and you see a response like `git version x.x.x`
-- [Nodejs](https://nodejs.org/en/)
-  - You'll know you've installed nodejs right if you can run:
-    - `node --version`and get an output like: `vx.x.x`
-- [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/) instead of `npm`
-  - You'll know you've installed yarn right if you can run:
-    - `yarn --version` And get an output like: `x.x.x`
-    - You might need to install it with npm
+- Node.js version [18.0](https://nodejs.org/en/download/) or greater
 
-> If you're familiar with `npx` and `npm` instead of `yarn`, you can use `npx` for execution and `npm` for installing dependencies. 
+## Steps
 
-## Quickstart
+1. Clone this repository to your local machine<br><br>
+2. Open this directory in your command line, then run `npm install` to install all dependencies.<br><br>
+3. Set the required environment variables.
+   1. This can be done by renaming the file `.env.example` to `.env` (this renaming is important so that it does not get checked in with git!) and then changing the following values:
+      - `PRIVATE_KEY` for your development wallet.
+      - One of either `MUMBAI_RPC_URL` or `SEPOLIA_RPC_URL` for the network that you intend to use.
+   2. If desired, the `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` can also be set in order to verify contracts, along with any values used in the `secrets` object in `Functions-request-config.js`.<br><br>
+4. There are two files to notice that the default example will use:
+   - `contracts/FunctionsConsumer.sol` contains the smart contract that will receive the data.
+   - `calculation-example.js` contains JavaScript code that will be executed by each node of the DON.<br><br>
+5. Test an end-to-end request and fulfillment to this contract locally by simulating it using:<br>`npx hardhat functions-simulate`<br><br>
+6. Deploy and verify the consuming contract to an actual blockchain network by running:<br>`npx hardhat functions-deploy-client --network network_name_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` are set if using `--verify true`, depending on which network is used.<br><br>
+7. Create, fund & authorize a new Functions billing subscription by running:<br> `npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here --contract 0xDeployed_client_contract_address_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.  Testnet link can be obtained at <a href="https://faucets.chain.link/">faucets.chain.link</a>.<br><br>
+8. Make an on-chain request by running:<br>`npx hardhat functions-request --network network_name_here --contract 0xDeployed_client_contract_address_here --subid subscription_id_number_here`
 
-1. Clone and install dependencies
+# Command Glossary
 
-After installing all the requirements, run the following:
+Each of these commands can be executed in the following format.
 
-```bash
-git clone https://github.com/smartcontractkit/hardhat-starter-kit/
-cd hardhat-starter-kit
-```
-Then:
-```
-npm install
-```
+`npx hardhat command_here --parameter1 parameter_1_here --parameter2 parameter_2_here`
 
-The recommendation is to use npm 7 or later. If you are using an older version of npm, you'll also need to install all the packages used by the toolbox.
-```
-npm install --save-dev @nomicfoundation/hardhat-toolbox @nomicfoundation/hardhat-network-helpers @nomicfoundation/hardhat-chai-matchers @nomiclabs/hardhat-ethers @nomiclabs/hardhat-etherscan chai ethers hardhat-gas-reporter solidity-coverage @typechain/hardhat typechain @typechain/ethers-v5 @ethersproject/abi @ethersproject/providers
-```
+Example: `npx hardhat functions-read --network mumbai --contract 0x787Fe00416140b37B026f3605c6C72d096110Bb8`
 
-That's also the case if you are using yarn.
-```
-yarn add --dev @nomicfoundation/hardhat-toolbox @nomicfoundation/hardhat-network-helpers @nomicfoundation/hardhat-chai-matchers @nomiclabs/hardhat-ethers @nomiclabs/hardhat-etherscan chai ethers hardhat-gas-reporter solidity-coverage @typechain/hardhat typechain @typechain/ethers-v5 @ethersproject/abi @ethersproject/providers
-```
+### Functions Commands
 
-2. You can now do stuff!
+| Command                            | Description                                                                                                      | Parameters                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `compile`                          | Compiles all smart contracts                                                                                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `functions-simulate`               | Simulates an end-to-end fulfillment locally for the FunctionsConsumer contract                                   | `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000)                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `functions-deploy-client`          | Deploys the FunctionsConsumer contract                                                                           | `network`: Name of blockchain network, `verify` (optional): Set to `true` to verify the FunctionsConsumer contract (defaults to `false`)                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `functions-request`                | Initiates a request from an FunctionsConsumer client contract from `Functions-request-config.js`                 | `network`: Name of blockchain network, `contract`: Address of the client contract to call, `subid`: Billing subscription ID used to pay for the request, `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 100,000 & must be less than 300,000), `requestgas` (optional): Gas limit for calling the executeRequest function (defaults to 1,500,000), `simulate` (optional): Flag indicating if simulation should be run before making an on-chain request (defaults to true)                                |
+| `functions-read`                   | Reads the latest response returned to a Functions client contract                                                | `network`: Name of blockchain network, `contract`: Address of the client contract to read                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `functions-read-error`             | Reads the latest error returned to a Functions client contract                                                   | `network`: Name of blockchain network, `contract`: Address of the client contract to read                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `functions-deploy-auto-client`     | Deploys the AutomatedFunctionsConsumer contract and sets Funcnction request from `Functions-request-config.js`   | `network`: Name of blockchain network, `subid`: Billing subscription ID used to pay for Functions requests, `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 250000), `interval` (optional): Update interval in seconds for Automation to call performUpkeep (defaults to 300), `verify` (optional): Set to `true` to verify the FunctionsConsumer contract (defaults to `false`), `simulate` (optional): Flag indicating if simulation should be run before making an on-chain request (defaults to true) |
+| `functions-check-upkeep`           | Checks if checkUpkeep returns true for an Automation compatible contract                                         | `network`: Name of blockchain network, `contract`: Address of the contract to check, `data` (optional): Hex string representing bytes that are passed to the checkUpkeep function (defaults to empty bytes)                                                                                                                                                                                                                                                                                                                                                                        |
+| `functions-perform-upkeep`         | Manually call performUpkeep in an Automation compatible contract                                                 | `network`: Name of blockchain network, `contract`: Address of the contract to check, `data` (optional): Hex string representing bytes that are passed to the performUpkeep function (defaults to empty bytes)                                                                                                                                                                                                                                                                                                                                                                      |
+| `functions-set-auto-request`       | Updates the Functions request in deployed AutomatedFunctionsConsumer contract from `Functions-request-config.js` | `network`: Name of blockchain network, `contract`: Address of the contract to update, `subid`: Billing subscription ID used to pay for Functions requests, `interval` (optional): Update interval in seconds for Automation to call performUpkeep (defaults to 300), `gaslimit` (optional): Maximum amount of gas that can be used to call fulfillRequest in the client contract (defaults to 250000)                                                                                                                                                                              |
+| `functions-set-oracle-addr`        | Updates the oracle address for a client contract using the FunctionsOracle address from `network-config.js`      | `network`: Name of blockchain network, `contract`: Address of the client contract to update                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `functions-build-request`          | Creates a JSON file with Functions request parameters                                                            | `network`: Name of blockchain network, `output` (optional): Output file name (defaults to Functions-request.json), `simulate` (optional): Flag indicating if simulation should be run before building the request JSON file (defaults to true)                                                                                                                                                                                                                                                                                                                                     |
+| `functions-build-offchain-secrets` | Builds an off-chain secrets object for one or many nodes that can be uploaded and referenced via URL             | `network`: Name of blockchain network, `output` (optional): Output file name (defaults to offchain-secrets.json)                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
-```
-npx hardhat test
-```
+### Functions Subscription Management Commands
 
-or
+| Command                      | Description                                                                                                                        | Parameters                                                                                                                                                                                                                                             |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `functions-sub-create`       | Creates a new billing subscription for Functions client contracts                                                                  | `network`: Name of blockchain network, `amount` (optional): Initial amount used to fund the subscription in LINK (decimals are accepted), `contract` (optional): Address of the client contract address authorized to use the new billing subscription |
+| `functions-sub-info`         | Gets the Functions billing subscription balance, owner, and list of authorized client contract addresses                           | `network`: Name of blockchain network, `subid`: Subscription ID                                                                                                                                                                                        |
+| `functions-sub-fund`         | Funds a billing subscription with LINK                                                                                             | `network`: Name of blockchain network, `subid`: Subscription ID, `amount`: Amount to fund subscription in LINK (decimals are accepted)                                                                                                                 |
+| `functions-sub-cancel`       | Cancels Functions billing subscription and refunds unused balance. Cancellation is only possible if there are no pending requests. | `network`: Name of blockchain network, `subid`: Subscription ID, `refundaddress` (optional): Address where the remaining subscription balance is sent (defaults to caller's address)                                                                   |
+| `functions-sub-add`          | Adds a client contract to the Functions billing subscription                                                                       | `network`: Name of blockchain network, `subid`: Subscription ID, `contract`: Address of the client contract to authorize for billing                                                                                                                   |
+| `functions-sub-remove`       | Removes a client contract from an Functions billing subscription                                                                   | `network`: Name of blockchain network, `subid`: Subscription ID, `contract`: Address of the client contract to remove from billing subscription                                                                                                        |
+| `functions-sub-transfer`     | Request ownership of an Functions subscription be transferred to a new address                                                     | `network`: Name of blockchain network, `subid`: Subscription ID, `newowner`: Address of the new owner                                                                                                                                                  |
+| `functions-sub-accept`       | Accepts ownership of an Functions subscription after a transfer is requested                                                       | `network`: Name of blockchain network, `subid`: Subscription ID                                                                                                                                                                                        |
+| `functions-timeout-requests` | Times out expired requests                                                                                                         | `network`: Name of blockchain network, `requestids`: 1 or more request IDs to timeout separated by commas                                                                                                                                              |
 
-```
-npm run test
-```
+# Request Configuration
 
-or
+Chainlink Functions requests can be configured by modifying values in the `requestConfig` object found in the `Functions-request-config.js` file located in the root of this repository.
 
-```
-yarn test
-```
+| Setting Name             | Description                                                                                                                                                                                                                                                                                                                 |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `codeLocation`           | This specifies where the JavaScript code for a request is located. Currently, only the `Location.Inline` option is supported (represented by the value `0`). This means the JavaScript string is provided directly in the on-chain request instead of being referenced via a URL.                                           |
+| `secretsLocation`        | This specifies where the encrypted secrets for a request are located. `Location.Inline` (represented by the value `0`) means encrypted secrets are provided directly in the on-chain, while `Location.Remote` (represented by `1`) means secrets are referenced via encrypted URLs.                                         |
+| `codeLanguage`           | This specifies the language of the source code which is executed in a request. Currently, only `JavaScript` is supported (represented by the value `0`).                                                                                                                                                                    |
+| `source`                 | This is a string containing the source code which is executed in a request. This must be valid JavaScript code that returns a Buffer. See the [JavaScript Code](#javascript-code) section for more details.                                                                                                                 |
+| `secrets`                | This is a JavaScript object which contains secret values that are injected into the JavaScript source code and can be accessed using the name `secrets`. This object will be automatically encrypted by the tooling using the DON public key before making an on-chain request. This object can only contain string values. |
+| `walletPrivateKey`       | This is the EVM private key. It is used to generate a signature for the encrypted secrets such that the secrets cannot be reused by an unauthorized 3rd party.                                                                                                                                                              |
+| `args`                   | This is an array of strings which contains values that are injected into the JavaScript source code and can be accessed using the name `args`. This provides a convenient way to set modifiable parameters within a request.                                                                                                |
+| `expectedReturnType`     | This specifies the expected return type of a request. It has no on-chain impact, but is used by the CLI to decode the response bytes into the specified type. The options are `uint256`, `int256`, `string`, or `Buffer`.                                                                                                   |
+| `secretsURLs`            | This is an array of URLs where encrypted off-chain secrets can be fetched when a request is executed if `secretsLocation` == `Location.Remote`. This array is converted into a space-separated string, encrypted using the DON public key, and used as the `secrets` parameter.                                             |
+| `perNodeOffchainSecrets` | This is an array of `secrets` objects that enables the optional ability to assign a separate set of secrets for each node in the DON if `secretsLocation` == `Location.Remote`. It is used by the `functions-build-offchain-secret` command. See the [Off-chain Secrets](#off-chain-secrets) section for more details.      |
+| `globalOffchainSecrets`  | This is a default `secrets` object that any DON member can use to process a request. It is used by the `functions-build-offchain-secret` command. See the [Off-chain Secrets](#off-chain-secrets) section for more details.                                                                                                 |
 
-### Typescript
+## JavaScript Code
 
-To use typescript, run:
+The JavaScript source code for an Functions request can use vanilla Node.js features, but cannot use any imported modules or `require` statements.
+It must return a JavaScript Buffer which represents the response bytes that are sent back to the requesting contract.
+Encoding functions are provided in the [Functions library](#functions-library).
+Additionally, the script must return in **less than 10 seconds** or it will be terminated and send back an error to the requesting contract.
 
-```
-git checkout typescript
-npm install
-```
+In order to make HTTP requests, the source code must use the `Functions.makeHttpRequest` function from the exposed [Functions library](#functions-library).
+Asynchronous code with top-level `await` statements is supported, as shown in the file `API-request-example.js`.
 
-# Usage
+### Functions Library
 
-If you run `npx hardhat --help` you'll get an output of all the tasks you can run. 
+The `Functions` library is injected into the JavaScript source code and can be accessed using the name `Functions`.
 
-## Deploying Contracts
-
-```
-npm run deploy
-```
-
-This will deploy your contracts to a local network. Additionally, if on a local network, it will deploy mock Chainlink contracts for you to interact with. If you'd like to interact with your deployed contracts, skip down to [Interacting with Deployed Contracts](#interacting-with-deployed-contracts).
-
-## Run a Local Network
-
-One of the best ways to test and interact with smart contracts is with a local network. To run a local network with all your contracts in it, run the following:
-
-```
-npx hardhat node
-```
-
-You'll get a local blockchain, private keys, contracts deployed (from the `deployment` folder scripts), and an endpoint to potentially add to an EVM wallet. 
-
-## Using a Testnet or Live Network (like Mainnet or Polygon)
-
-In your `hardhat.config.js` you'll see section like:
-
-```
-module.exports = {
-  defaultNetwork: "hardhat",
-  networks: {
-```
-
-This section of the file is where you define which networks you want to interact with. You can read more about that whole file in the [hardhat documentation.](https://hardhat.org/config/)
-
-To interact with a live or test network, you'll need:
-
-1. An rpc URL 
-2. A Private Key
-3. ETH & LINK token (either testnet or real)
-
-Let's look at an example of setting these up using the Sepolia testnet. 
-
-### Sepolia Ethereum Testnet Setup
-
-First, we will need to set environment variables. We can do so by setting them in our `.env` file (create it if it's not there). You can also read more about [environment variables](https://www.twilio.com/blog/2017/01/how-to-set-environment-variables.html) from the linked twilio blog. You'll find a sample of what this file will look like in `.env.example`
-
-> IMPORTANT: MAKE SURE YOU'D DON'T EXPOSE THE KEYS YOU PUT IN THIS `.env` FILE. By that, I mean don't push them to a public repo, and please try to keep them keys you use in development not associated with any real funds. 
-
-1. Set your `SEPOLIA_RPC_URL` [environment variable.](https://www.twilio.com/blog/2017/01/how-to-set-environment-variables.html)
-
-You can get one for free from [Alchemy](https://www.alchemy.com/), [Infura](https://infura.io/), or [Moralis](https://moralis.io/speedy-nodes/). This is your connection to the blockchain. 
-
-2. Set your `PRIVATE_KEY` environment variable. 
-
-This is your private key from your wallet, ie [MetaMask](https://metamask.io/). This is needed for deploying contracts to public networks. You can optionally set your `MNEMONIC` environment variable instead with some changes to the `hardhat.config.js`.
-
-![WARNING](https://via.placeholder.com/15/f03c15/000000?text=+) **WARNING** ![WARNING](https://via.placeholder.com/15/f03c15/000000?text=+)
-
-When developing, it's best practice to use a Metamask that isn't associated with any real money. A good way to do this is to make a new browser profile (on Chrome, Brave, Firefox, etc) and install Metamask on that browser, and never send this wallet money.  
-
-Don't commit and push any changes to .env files that may contain sensitive information, such as a private key! If this information reaches a public GitHub repository, someone can use it to check if you have any Mainnet funds in that wallet address, and steal them!
-
-`.env` example:
-```
-SEPOLIA_RPC_URL='https://sepolia.infura.io/v3/asdfadsfafdadf'
-PRIVATE_KEY='abcdef'
-```
-`bash` example
-```
-export SEPOLIA_RPC_URL='https://sepolia.infura.io/v3/asdfadsfafdadf'
-export PRIVATE_KEY='abcdef'
-```
-
-> You can also use a `MNEMONIC` instead of a `PRIVATE_KEY` environment variable by uncommenting the section in the `hardhat.config.js`, and commenting out the `PRIVATE_KEY` line. However this is not recommended. 
-
-For other networks like mainnet and polygon, you can use different environment variables for your RPC URL and your private key. See the `hardhat.config.js` to learn more. 
-
-3. Get some Sepolia Testnet ETH and LINK 
-
-Head over to the [Chainlink faucets](https://faucets.chain.link/) and get some ETH and LINK. Please follow [the chainlink documentation](https://docs.chain.link/docs/acquire-link/) if unfamiliar. 
-
-4. Create VRF V2 subscription
-
-Head over to [VRF Subscription Page](https://vrf.chain.link/sepolia) and create the new subscription. Save your subscription ID and put it in `helper-hardhat-config.js` file as `subscriptionId`
-
-5. Running commands
-
-You should now be all setup! You can run any command and just pass the `--network sepolia` now!
-
-To deploy contracts:
+In order to make HTTP requests, only the `Functions.makeHttpRequest(x)` function can be used. All other methods of accessing the Internet are restricted.
+The function takes an object `x` with the following parameters.
 
 ```
-npm run deploy --network sepolia
-```
-
-To run staging testnet tests
-```
-npm run test-staging
-```
-
-## Forking 
- 
-If you'd like to run tests or on a network that is a [forked network](https://hardhat.org/hardhat-network/guides/mainnet-forking.html)
-1. Set a `MAINNET_RPC_URL` environment variable that connects to the mainnet.
-2. Choose a block number to select a state of the network you are forking and set it as `FORKING_BLOCK_NUMBER` environment variable. If ignored, it will use the latest block each time which can lead to test inconsistency.
-3. Set `enabled` flag to `true`/`false` to enable/disable forking feature
-```
-      forking: {
-        url: MAINNET_RPC_URL,
-        blockNumber: FORKING_BLOCK_NUMBER,
-        enabled: false,
-      }
-```
-
-
-## Auto-Funding
-
-This Starter Kit is configured by default to attempt to auto-fund any newly deployed contract that uses Any-API, to save having to manually fund them after each deployment. The amount in LINK to send as part of this process can be modified in the [Starter Kit Config](helper-hardhat-config.js), and are configurable per network.
-
-| Parameter  | Description                                       | Default Value |
-| ---------- | :------------------------------------------------ | :------------ |
-| fundAmount | Amount of LINK to transfer when funding contracts | 0.1 LINK      |
-
-If you wish to deploy the smart contracts without performing the auto-funding, add an `AUTO_FUND` environment variable, and set it to false. 
-
-
-# Test
-Tests are located in the [test](./test/) directory, and are split between unit tests and staging/testnet tests. Unit tests should only be run on local environments, and staging tests should only run on live environments.
-
-To run unit tests:
-
-```
-npx hardhat test
-```
-
-or
-
-```
-npm run test
-```
-
-or
-
-```
-yarn test
-```
-
-To run staging tests on Sepolia network:
-
-```
-npx hardhat test --network sepolia
-```
-or
-```bash
-npm run test-staging
-```
-
-## Performance optimizations
-
-Since all tests are written in a way to be independent from each other, you can save time by running them in parallel. Make sure that `AUTO_FUND=false` inside `.env` file. There are some limitations with parallel testing, read more about them [here](https://hardhat.org/guides/parallel-tests.html)
-
-To run tests in parallel:
-```
-npx hardhat test --parallel
-```
-or
-```
-npm run test --parallel
-```
-
-# Interacting with Deployed Contracts
-
-After deploying your contracts, the deployment output will give you the contract addresses as they are deployed. You can then use these contract addresses in conjunction with Hardhat tasks to perform operations on each contract.
-
-
-## Chainlink Price Feeds
-The Price Feeds consumer contract has one task, to read the latest price of a specified price feed contract
-
-```bash
-npx hardhat read-price-feed --contract insert-contract-address-here --network network
-```
-
-## Request & Receive Data
-The APIConsumer contract has two tasks, one to request external data based on a set of parameters, and one to check to see what the result of the data request is. This contract needs to be funded with link first:
-
-```bash
-npx hardhat fund-link --contract insert-contract-address-here --network network
-```
-
-Once it's funded, you can request external data by passing in a number of parameters to the request-data task. The contract parameter is mandatory, the rest are optional
-
-```bash
-npx hardhat request-data --contract insert-contract-address-here --network network
-```
-
-Once you have successfully made a request for external data, you can see the result via the read-data task
-```bash
-npx hardhat read-data --contract insert-contract-address-here --network network
-```
-
-
-## VRF Get a random number
-The VRFConsumer contract has two tasks, one to request a random number, and one to read the result of the random number request. 
-As explained in the [developer documentation](https://docs.chain.link/vrf/v2/introduction), there are two methods:
-- The [Subscription method](https://docs.chain.link/vrf/v2/subscription)
-- The [Direct Funding method](https://docs.chain.link/vrf/v2/direct-funding)
-
-Read the docs first to understand which method is the most suitable for your usecase.
-
-### VRF Subscription method
-To start, go to [VRF Subscription Page](https://vrf.chain.link/sepolia) and create the new subscription. Save your subscription ID and put it in `helper-hardhat-config.js` file as `subscriptionId`:
-
-```javascript
-5: {
-    // rest of the config
-    subscriptionId: "777"
+{
+  url: String with the URL to which the request is sent,
+  method: (optional) String specifying the HTTP method to use which can be either 'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', or 'OPTIONS' (defaults to 'GET'),
+  headers: (optional) Object with headers to use in the request,
+  params: (optional) Object with URL query parameters,
+  data: (optional) Object which represents the body sent with the request,
+  timeout: (optional) Number with the maximum request duration in ms (defaults to 5000ms),
+  responseType: (optional) String specifying the expected response type which can be either 'json', 'arraybuffer', 'document', 'text' or 'stream' (defaults to 'json'),
 }
 ```
 
-Then, deploy your VRF V2 contract consumer to the network of your recent subscription using subscription id as constructor argument.
+The function returns a promise that resolves to either a success response object or an error response object.
 
-```bash
-npm run deploy --network network   
-```
-
-Finally, you need to go to your subscription page one more time and add the address of deployed contract as a new consumer. Once that's done, you can perform a VRF request with the request-random-number task:
-
-```bash
-npx hardhat request-random-number --contract insert-contract-address-here --network network
-```
-
-Once you have successfully made a request for a random number, you can see the result via the read-random-number task:
-
-```bash
-npx hardhat read-random-number --contract insert-contract-address-here --network network
-```
-
-### VRF Direct Funding method
-Deploy your VRF V2 contract consumer to the network.
-
-```bash
-npm run deploy --network network   
-```
-
-or (if you are using yarn)
-
-```bash
-yarn deploy --network network   
-```
-
-Now you have to fund your consumer contract with LINK tokens:
-
-```bash
-npx hardhat transfer-link --recipient insert-contract-address-here --amount insert-amount-in-juels-here --network network
-```
-
-Once that's done, you can perform a VRF request with the request-random-number task:
-
-```bash
-npx hardhat request-random-number-direct-funding --callbackgaslimit insert-callback-gas-limit-here --requestconfirmations insert-request-confirmations-here --numwords insert-number-words-here --contract insert-contract-address-here --network network
-```
-
-Once you have successfully made a request for a random number, you can see the result via the read-random-number task:
-
-```bash
-npx hardhat read-random-number-direct-funding --contract insert-contract-address-here --network network
-```
-
-## Automation
-The AutomationCounter contract is a simple Chainlink Automation enabled contract that simply maintains a counter variable that gets incremented each time the performUpkeep task is performed by a Chainlink Automation. Once the contract is deployed, you should head to [https://automation.chain.link/](https://automation.chain.link/) to register it for upkeeps, then you can use the task below to view the counter variable that gets incremented by Chainlink Automation
-
-
-```bash
-npx hardhat read-automation-counter --contract insert-contract-address-here --network network
-```
-
-## Verify on Etherscan
-
-You'll need an `ETHERSCAN_API_KEY` environment variable. You can get one from the [Etherscan API site.](https://etherscan.io/apis). If you have it set, your deploy script will try to verify them by default, but if you want to verify any manually, you can run: 
+A success response object will have the following parameters.
 
 ```
-npx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
-```
-example:
-
-```
-npx hardhat verify --network sepolia 0x9279791897f112a41FfDa267ff7DbBC46b96c296 "0x694AA1769357215DE4FAC081bf1f309aDC325306"
-```
-
-# Linting
-
-This will [lint](https://stackoverflow.com/questions/8503559/what-is-linting) your smart contracts.  
-
-```
-npm run lint:fix
+{
+  error: false,
+  data: Response data sent by the server,
+  status: Number representing the response status,
+  statusText: String representing the response status,
+  headers: Object with response headers sent by the server,
+}
 ```
 
-# Code Formatting
-
-This will format both your javascript and solidity to look nicer. 
+An error response object will have the following parameters.
 
 ```
-npm run format
+{
+  error: true,
+  message: (may be undefined) String containing error message,
+  code: (may be undefined) String containing an error code,
+  response: (may be undefined) Object containing response from server,
+}
 ```
 
-# Estimating Gas
+This library also exposes functions for encoding JavaScript values into Buffers which represent the bytes that a returned on-chain.
 
-To estimate gas, just set a `REPORT_GAS` environment variable to true, and then run:
+- `Functions.encodeUint256(x)` takes a positive JavaScript integer number `x` and returns a 32 byte Buffer representing `x` as a `uint256` type in Solidity.
+- `Functions.encodeInt256(x)` takes a JavaScript integer number `x` and returns a 32 byte Buffer representing `x` as a `int256` type in Solidity.
+- `Functions.encodeString(x)` takes a JavaScript string `x` and returns a Buffer representing `x` as a `string` type in Solidity.
 
-```
-npx hardhat test
-```
+## Modifying Contracts
 
-If you'd like to see the gas prices in USD or other currency, add a `COINMARKETCAP_API_KEY` from [Coinmarketcap](https://coinmarketcap.com/api/documentation/v1/).
+Client contracts which initiate a request and receive a fulfillment can be modified for specific use cases. The only requirements are that the client contract extends the `FunctionsClient` contract and the `fulfillRequest` callback function never uses more than 300,000 gas.
 
-# Code coverage
+## Simulating Requests
 
-To see a measure in percent of the degree to which the smart contract source code is executed when a particular test suite is run, type
-```
-npm run coverage
-```
+An end-to-end request initiation and fulfillment can be simulated using the `npx hardhat functions-simulate` command. This command will report the total estimated cost of a request in LINK using the latest on-chain gas prices. Costs are based on the amount of gas used to validate the response and call the client contract's `fulfillRequest` function, plus a flat fee. Please note that actual request costs can vary based on gas prices when a request is initiated on-chain.
 
-# Fuzzing
+## Off-chain Secrets
 
-We are going to use Echidna as a Fuzz testing tool. You need to have [Docker](https://www.docker.com/) installed with at least 8GB virtual memory allocated (To update this parameter go to _Settings->Resources->Advanced->Memory_). 
+Instead of using encrypted secrets stored directly on the blockchain, encrypted secrets can also be hosted off-chain and be fetched by DON nodes via HTTP when a request is initiated.
 
-To start Echidna instance run
+Off-chain secrets also enable a separate set of secrets to be assigned to each node in the DON. Each node will not be able to decrypt the set of secrets belonging to another node. Optionally, a set of default secrets encrypted with the DON public key can be used as a fallback by any DON member who does not have a set of secrets assigned to them. This handles the case where a new member is added to the DON, but the assigned secrets have not yet been updated.
 
-```
-npm run fuzzing
-```
+To use per-node assigned secrets, enter a list of secrets objects into `perNodeOffchainSecrets` in `Functions-request-config.js` before running the `functions-build-offchain-secrets` command. The number of objects in the array must correspond to the number of nodes in the DON. Default secrets can be entered into the `globalOffchainSecrets` parameter of `Functions-request-config.js`. Each secrets object must have the same set of entries, but the values for each entry can be different (ie: `[ { apiKey: '123' }, { apiKey: '456' } ]`). If the per-node secrets feature is not desired, `perNodeOffchainSecrets` can be left empty and a single set of secrets can be entered for `globalOffchainSecrets`.
 
-If you are using it for the first time, you will need to wait for Docker to download [eth-security-toolbox](https://hub.docker.com/r/trailofbits/eth-security-toolbox) image for us.
+To generate the encrypted secrets JSON file, run the command `npx hardhat functions-build-offchain-secrets --network network_name_here`. This will output the file `offchain-secrets.json` which can be uploaded to S3, Github, or another hosting service that allows the JSON file to be fetched via URL.
+Once the JSON file is uploaded, set `secretsLocation` to `Location.Remote` in `Functions-request-config.js` and enter the URL(s) where the JSON file is hosted into `secretsURLs`. Multiple URLs can be entered as a fallback in case any of the URLs are offline. Each URL should host the exact same JSON file. The tooling will automatically pack the secrets URL(s) into a space-separated string and encrypt the string using the DON public key so no 3rd party can view the URLs. Finally, this encrypted string of URLs is used in the `secrets` parameter when making an on-chain request.
 
-To start Fuzzing run
-```
-echidna-test /src/contracts/test/fuzzing/AutomationCounterEchidnaTest.sol --contract AutomationCounterEchidnaTest --config /src/contracts/test/fuzzing/config.yaml
-```
+URLs which host secrets must be available every time a request is executed by DON nodes. For optimal security, it is recommended to expire the URLs when the off-chain secrets are no longer in use.
 
-To exit Echidna type
-```bash
-exit
-```
+# Automation Integration
 
-# Contributing
+Chainlink Functions can be used with Chainlink Automation in order to automatically trigger a Functions request.
 
-Contributions are always welcome! Open a PR or an issue!
+1. Create & fund a new Functions billing subscription by running:<br>`npx hardhat functions-sub-create --network network_name_here --amount LINK_funding_amount_here`<br>**Note**: Ensure your wallet has a sufficient LINK balance before running this command.<br><br>
+2. Deploy the `AutomationFunctionsConsumer` client contract by running:<br>`npx hardhat functions-deploy-auto-client --network network_name_here --subid subscription_id_number_here --interval time_between_requests_here --verify true`<br>**Note**: Make sure `ETHERSCAN_API_KEY` or `POLYGONSCAN_API_KEY` environment variables are set. API keys for these services are freely available to anyone who creates an EtherScan or PolygonScan account.<br><br>
+3. Register the contract for upkeep via the Chainlink Automation web app here: [https://automation.chain.link/](https://automation.chain.link/)
+   - Be sure to set the `Gas limit` for the `performUpkeep` function to a high enough value.  The recommended value is 1,000,000.
+   - Find further documentation for working with Chainlink Automation here: [https://docs.chain.link/chainlink-automation/introduction](https://docs.chain.link/chainlink-automation/introduction)
 
-# Thank You!
+Once the contract is registered for upkeep, check the latest response or error with the commands `npx hardhat functions-read --network network_name_here --contract contract_address_here`.
 
-## Resources
-
-- [Chainlink Documentation](https://docs.chain.link/)
-- [Hardhat Documentation](https://hardhat.org/getting-started/)
+For debugging, use the command `npx hardhat functions-check-upkeep --network network_name_here --contract contract_address_here` to see if Automation needs to call `performUpkeep`.
+To manually trigger a request, use the command `npx hardhat functions-perform-upkeep --network network_name_here --contract contract_address_here`.

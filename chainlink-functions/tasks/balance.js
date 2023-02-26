@@ -1,27 +1,15 @@
-const { networkConfig } = require("../helper-hardhat-config")
+const { ethers } = require("ethers")
 
-task("balance", "Prints an account's balances of native and LINK tokens")
-    .addParam("account", "The account's address")
-    .addOptionalParam("linkaddress", "Set the LINK token address")
-    .setAction(async (taskArgs) => {
-        const accounts = await hre.ethers.getSigners()
-        const signer = accounts[0]
+const network = process.env.NETWORK
+const provider = ethers.getDefaultProvider(network)
 
-        const account = ethers.utils.getAddress(taskArgs.account)
-        const networkId = network.config.chainId
-        const provider = signer.provider
+task("balance", "Prints an account's balance")
+  .addParam("account", "The account's address")
+  .setAction(async (taskArgs) => {
+    const account = ethers.utils.getAddress(taskArgs.account)
+    const balance = await provider.getBalance(account)
 
-        // native token
-        const balance = await provider.getBalance(account)
-
-        // fetch link balance
-        const linkTokenAddress = networkConfig[networkId]["linkToken"] || taskArgs.linkaddress
-        const LinkToken = await ethers.getContractFactory("LinkToken")
-        const linkTokenContract = await LinkToken.attach(linkTokenAddress)
-        const linkBalance = await linkTokenContract.balanceOf(account)
-
-        console.log(ethers.utils.formatEther(balance), "ETH")
-        console.log(ethers.utils.formatEther(linkBalance), "LINK")
-    })
+    console.log(ethers.utils.formatEther(balance), "ETH")
+  })
 
 module.exports = {}
