@@ -12,9 +12,14 @@ import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 contract Stork is FunctionsClient, ConfirmedOwner {
   using Functions for Functions.Request;
 
-  bytes32 public latestRequestId;
-  bytes public latestResponse;
-  bytes public latestError;
+  mapping(bytes32 => address) public requestAddresses;
+  mapping(string => uint) public twitterBalances;
+  mapping(address => string) public addressTwitterHandles;
+
+
+  uint64 internal constant SUBSCRIPTION_ID = 159;
+  uint32 internal constant GAS_LIMIT = 100000;
+  string internal constant FUNCTION_CODE = "const twitterAccessToken = secrets.twitterAccessToken; if (!twitterAccessToken) { throw Error('Twitter access token is empty'); } const twitterRequest = { identityByAccessToken: () => Functions.makeHttpRequest({ url: 'https://api.twitter.com/2/users/me', headers: { Authorization: `Bearer ${twitterAccessToken}` }})}; const handleRes = await new Promise((resolve, reject) => { twitterRequest.identityByAccessToken().then((res) => { if (!res.error) { resolve(res); } else { reject(res); } }); }); if (handleRes.error) { throw Error('Twitter API request failed - coult not get user id'); } const twitterHandle = handleRes.data.data.username || null; if (!twitterHandle) { throw Error('Twitter API request failed - user id is null'); } return Functions.encodeString(twitterHandle);";
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
 
@@ -24,38 +29,6 @@ contract Stork is FunctionsClient, ConfirmedOwner {
    * @param oracle - The FunctionsOracle contract
    */
   constructor(address oracle) FunctionsClient(oracle) ConfirmedOwner(msg.sender) {}
-
-  /**
-   * @notice Send a simple request
-   * 
-   * @param source JavaScript source code
-   * @param secrets Encrypted secrets payload
-   * @param args List of arguments accessible from within the source code
-   * @param subscriptionId Billing ID
-   */
-  function executeRequest(
-    string calldata source,
-    bytes calldata secrets,
-    Functions.Location secretsLocation,
-    string[] calldata args,
-    uint64 subscriptionId,
-    uint32 gasLimit
-  ) public onlyOwner returns (bytes32) {
-    Functions.Request memory req;
-    req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, source);
-    if (secrets.length > 0) {
-      if (secretsLocation == Functions.Location.Inline) {
-        req.addInlineSecrets(secrets);
-      } else {
-        req.addRemoteSecrets(secrets);
-      }
-    }
-    if (args.length > 0) req.addArgs(args);
-
-    bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit);
-    latestRequestId = assignedReqID;
-    return assignedReqID;
-  }
 
   /**
    * @notice Callback that is invoked once the DON has resolved the request or hit an error
@@ -70,8 +43,7 @@ contract Stork is FunctionsClient, ConfirmedOwner {
     bytes memory response,
     bytes memory err
   ) internal override {
-    latestResponse = response;
-    latestError = err;
+    addressTwitterHandles[requestAddresses[requestId]] = string(response);
     emit OCRResponse(requestId, response, err);
   }
 
@@ -89,34 +61,33 @@ contract Stork is FunctionsClient, ConfirmedOwner {
   }
 
 
-  function sendToTwitter(string calldata handle) public {
-
+  function sendToTwitter(string calldata handle) public payable {
+    twitterBalances[handle] += msg.value;
   }
 
-  function balanceOfTwitter(string calldata handle) public view {
-
+  function balanceOfTwitter(string calldata handle) public view returns(uint) {
+    return twitterBalances[handle];
   }
 
   function prepareClaim(
-    bytes calldata encryptedAccessToken,
-    string calldata destinationAddress) public returns (bytes32) {
+    bytes calldata encryptedAccessToken) public returns (bytes32) {
         Functions.Request memory req;
-        req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, "todo_source");
+        req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, FUNCTION_CODE);
         if (encryptedAccessToken.length > 0) {
             req.addInlineSecrets(encryptedAccessToken);
         }
 
-        string[] memory args = new string[](1);
-        args[0] = destinationAddress;
-        req.addArgs(args);
-
-        bytes32 assignedReqID = sendRequest(req, 159, 100000);
-        latestRequestId = assignedReqID;
+        bytes32 assignedReqID = sendRequest(req, SUBSCRIPTION_ID, GAS_LIMIT);
+        requestAddresses[assignedReqID] = msg.sender;
         return assignedReqID;
     }
   
-  function Claim() public {
-    
+  function claim() public {
+    uint balance = twitterBalances[addressTwitterHandles[msg.sender]];
+    if(balance > 0) {
+      twitterBalances[addressTwitterHandles[msg.sender]] = 0;
+      payable(msg.sender).transfer(balance);
+    }
   }
 
 }

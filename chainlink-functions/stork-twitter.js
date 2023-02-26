@@ -1,8 +1,7 @@
 const twitterAccessToken = secrets.twitterAccessToken;
-const ethereumAddress = args[0];
 
-if (!twitterAccessToken || !ethereumAddress) {
-  throw Error('Twitter username or Ethereum address is empty');
+if (!twitterAccessToken) {
+  throw Error('Twitter access token is empty,');
 }
 
 const twitterRequest = {
@@ -33,6 +32,4 @@ if (!twitterHandle) {
   throw Error('Twitter API request failed - user id is null');
 }
 
-return Functions.encodeString(
-    `${twitterHandle}|${ethereumAddress}`,
-  );
+return Functions.encodeString(twitterHandle);
