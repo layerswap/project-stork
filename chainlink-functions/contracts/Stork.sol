@@ -16,10 +16,9 @@ contract Stork is FunctionsClient, ConfirmedOwner {
   mapping(string => uint) public twitterBalances;
   mapping(address => string) public addressTwitterHandles;
 
-
   uint64 internal constant SUBSCRIPTION_ID = 159;
   uint32 internal constant GAS_LIMIT = 100000;
-  string internal constant FUNCTION_CODE = "const twitterAccessToken = secrets.twitterAccessToken; if (!twitterAccessToken) { throw Error('Twitter access token is empty'); } const twitterRequest = { identityByAccessToken: () => Functions.makeHttpRequest({ url: 'https://api.twitter.com/2/users/me', headers: { Authorization: `Bearer ${twitterAccessToken}` }})}; const handleRes = await new Promise((resolve, reject) => { twitterRequest.identityByAccessToken().then((res) => { if (!res.error) { resolve(res); } else { reject(res); } }); }); if (handleRes.error) { throw Error('Twitter API request failed - coult not get user id'); } const twitterHandle = handleRes.data.data.username || null; if (!twitterHandle) { throw Error('Twitter API request failed - user id is null'); } return Functions.encodeString(twitterHandle);";
+  string internal constant FUNCTION_CODE = "const twitterAccessToken = args[0]; if (!twitterAccessToken) { throw Error('AccessToken is required.'); } const twitterRequest = { identityByAccessToken: () => Functions.makeHttpRequest({ url: 'https://api.twitter.com/2/users/me', headers: { Authorization: `Bearer ${twitterAccessToken}` }})}; const handleRes = await new Promise((resolve, reject) => { twitterRequest.identityByAccessToken().then((res) => { if (!res.error) { resolve(res); } else { reject(res); } }); }); if (handleRes.error) { throw Error('Twitter API error.'); } const twitterHandle = handleRes.data.data.username || null; if (!twitterHandle) { throw Error('Username null.'); } return Functions.encodeString(twitterHandle);";
 
   event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
 
@@ -56,11 +55,6 @@ contract Stork is FunctionsClient, ConfirmedOwner {
     setOracle(oracle);
   }
 
-  function addSimulatedRequestId(address oracleAddress, bytes32 requestId) public onlyOwner {
-    addExternalRequest(oracleAddress, requestId);
-  }
-
-
   function sendToTwitter(string calldata handle) public payable {
     twitterBalances[handle] += msg.value;
   }
@@ -70,13 +64,12 @@ contract Stork is FunctionsClient, ConfirmedOwner {
   }
 
   function prepareClaim(
-    bytes calldata encryptedAccessToken) public returns (bytes32) {
+    string calldata accessToken) public returns (bytes32) {
         Functions.Request memory req;
         req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, FUNCTION_CODE);
-        if (encryptedAccessToken.length > 0) {
-            req.addInlineSecrets(encryptedAccessToken);
-        }
-
+        string[] memory args = new string[](1);
+        args[0] = accessToken;
+        req.addArgs(args);
         bytes32 assignedReqID = sendRequest(req, SUBSCRIPTION_ID, GAS_LIMIT);
         requestAddresses[assignedReqID] = msg.sender;
         return assignedReqID;

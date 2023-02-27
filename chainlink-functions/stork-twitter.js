@@ -1,7 +1,7 @@
-const twitterAccessToken = secrets.twitterAccessToken;
+const twitterAccessToken = args[0];
 
 if (!twitterAccessToken) {
-  throw Error('Twitter access token is empty,');
+  throw Error('AccessToken is required.');
 }
 
 const twitterRequest = {
@@ -23,13 +23,13 @@ const handleRes = await new Promise((resolve, reject) => {
   });
   
   if (handleRes.error) {
-    throw Error('Twitter API request failed - coult not get user id');
+    throw Error('Twitter API error.');
   }
 
 const twitterHandle = handleRes.data.data.username || null;
 
 if (!twitterHandle) {
-  throw Error('Twitter API request failed - user id is null');
+  throw Error('Username null.');
 }
 
 return Functions.encodeString(twitterHandle);
