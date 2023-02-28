@@ -6,8 +6,8 @@ import "./dev/functions/FunctionsClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
 /**
- * @title Stork contract
- * @notice This contract is used for allowing users to send assets to twitter handles, then those users can claim those assets back
+ * @title Stork contract - ETHDenver Hackathon Project
+ * @notice This contract is used for allowing users to send and claim assets trustlessly to/from twitter handles
  */
 contract Stork is FunctionsClient, ConfirmedOwner {
   using Functions for Functions.Request;
@@ -86,19 +86,43 @@ contract Stork is FunctionsClient, ConfirmedOwner {
     setOracle(oracle);
   }
 
+  /**
+   * @notice Sends funds to twitter handle
+   *
+   * @param handle Twitter handle to send funds to
+   */
   function sendToTwitterHandle(string calldata handle) public payable {
     twitterBalances[handle] += msg.value;
   }
 
+  /**
+   * @notice Reads balance of Twitter handle
+   *
+   * @param handle Twitter handle to check balance.
+   */
   function balanceOfTwitterHandle(string calldata handle) public view returns (uint256) {
     return twitterBalances[handle];
   }
 
-  function twitterHandleOfAddress(address userAddress) public view returns (string memory) {
-    return addressTwitterHandles[userAddress];
+  /**
+   * @notice Reads claimed address of Twitter handle
+   *
+   * @param addr Address to check claimed Twitter handle.
+   */
+  function twitterHandleOfAddress(address addr) public view returns (string memory) {
+    return addressTwitterHandles[addr];
   }
 
-  function claimTwitterHandle(string calldata expectedTwitterHandle, string calldata accessToken) public returns (bytes32) {
+  /**
+   * @notice Claims twitter handle to sender.
+   *
+   * @param expectedTwitterHandle Expected Twitter handle.
+   * @param accessToken OAuth2 User Context Twitter access token.
+   */
+  function claimTwitterHandle(string calldata expectedTwitterHandle, string calldata accessToken)
+    public
+    returns (bytes32)
+  {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, FUNCTION_CODE);
     string[] memory args = new string[](1);
@@ -110,6 +134,10 @@ contract Stork is FunctionsClient, ConfirmedOwner {
     return assignedReqID;
   }
 
+  /**
+   * @notice Claim funds
+   *
+   */
   function claimFunds() public {
     uint256 balance = twitterBalances[addressTwitterHandles[msg.sender]];
     assert(balance > 0);
