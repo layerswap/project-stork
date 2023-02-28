@@ -1,4 +1,4 @@
-import { ALCHEMY_API_KEY, WALLET_CONNECT_PROJECT_ID } from '@/lib/credentials'
+import { ALCHEMY_API_KEY, WALLET_CONNECT_PROJECT_ID } from '@/lib/constants'
 import { EthereumClient, modalConnectors, walletConnectProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import type { AppProps } from 'next/app'

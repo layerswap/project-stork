@@ -10,7 +10,7 @@ export default function Salon(userCreds: InferGetServerSidePropsType<typeof getS
     return (
         <>
             <div>
-                <p>  Yo {userCreds.userName} token is {userCreds.token};</p>
+                <p>  Yo {userCreds.userName} token is {userCreds.token}</p>
             </div>
         </>
     )

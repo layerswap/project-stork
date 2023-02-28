@@ -1,5 +1,5 @@
 import { Client, auth } from "twitter-api-sdk";
-import { TWITTER_CLIENT_ID } from "./credentials";
+import { TWITTER_CLIENT_ID } from "./constants";
 
 const authClient = new auth.OAuth2User({
     client_id: TWITTER_CLIENT_ID as string,
