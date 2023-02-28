@@ -219,7 +219,8 @@ task("functions-request", "Initiates a request from an Functions client contract
 
   task("stork-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the client contract to call")
-  .addParam("accesstoken", "Access token")
+  .addParam("accesstoken", "Twitter oAuth Access token")
+  .addParam("twitterhandle", "Expected Twitter handle")
   .setAction(async (taskArgs, hre) => {
     if (network.name === "hardhat") {
       throw Error(
@@ -241,11 +242,6 @@ task("functions-request", "Initiates a request from an Functions client contract
       "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
     )
     const registry = await RegistryFactory.attach(registryAddress)
-
-    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
-    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
-
-    const request = await generateRequest(requestConfig, taskArgs)
 
     const overrides = {
       gasLimit: 1500000,
