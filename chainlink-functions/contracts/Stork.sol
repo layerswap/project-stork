@@ -13,6 +13,7 @@ contract Stork is FunctionsClient, ConfirmedOwner {
   using Functions for Functions.Request;
 
   mapping(bytes32 => address) public requestAddresses;
+  mapping(bytes32 => string) public requestExpectedTwitterHandles;
   mapping(string => uint256) public twitterBalances;
   mapping(address => string) public addressTwitterHandles;
 
@@ -70,8 +71,10 @@ contract Stork is FunctionsClient, ConfirmedOwner {
     bytes memory response,
     bytes memory err
   ) internal override {
-    addressTwitterHandles[requestAddresses[requestId]] = string(response);
     emit OCRResponse(requestId, response, err);
+    // Make sure that oracles returned the handle that user was expecting
+    assert(keccak256(bytes(requestExpectedTwitterHandles[requestId])) == keccak256(response));
+    addressTwitterHandles[requestAddresses[requestId]] = string(response);
   }
 
   /**
@@ -83,19 +86,19 @@ contract Stork is FunctionsClient, ConfirmedOwner {
     setOracle(oracle);
   }
 
-  function sendToTwitter(string calldata handle) public payable {
+  function sendToTwitterHandle(string calldata handle) public payable {
     twitterBalances[handle] += msg.value;
   }
 
-  function balanceOfTwitter(string calldata handle) public view returns (uint256) {
+  function balanceOfTwitterHandle(string calldata handle) public view returns (uint256) {
     return twitterBalances[handle];
   }
 
-  function twitterAddress(address userAddress) public view returns (string memory) {
+  function twitterHandleOfAddress(address userAddress) public view returns (string memory) {
     return addressTwitterHandles[userAddress];
   }
 
-  function claimTwitter(string calldata accessToken) public returns (bytes32) {
+  function claimTwitterHandle(string calldata expectedTwitterHandle, string calldata accessToken) public returns (bytes32) {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, FUNCTION_CODE);
     string[] memory args = new string[](1);
@@ -103,14 +106,14 @@ contract Stork is FunctionsClient, ConfirmedOwner {
     req.addArgs(args);
     bytes32 assignedReqID = sendRequest(req, SUBSCRIPTION_ID, GAS_LIMIT);
     requestAddresses[assignedReqID] = msg.sender;
+    requestExpectedTwitterHandles[assignedReqID] = expectedTwitterHandle;
     return assignedReqID;
   }
 
-  function claim() public {
+  function claimFunds() public {
     uint256 balance = twitterBalances[addressTwitterHandles[msg.sender]];
-    if (balance > 0) {
-      twitterBalances[addressTwitterHandles[msg.sender]] = 0;
-      payable(msg.sender).transfer(balance);
-    }
+    assert(balance > 0);
+    twitterBalances[addressTwitterHandles[msg.sender]] = 0;
+    payable(msg.sender).transfer(balance);
   }
 }
