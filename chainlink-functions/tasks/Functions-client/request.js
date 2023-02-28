@@ -221,6 +221,12 @@ task("functions-request", "Initiates a request from an Functions client contract
   .addParam("contract", "Address of the client contract to call")
   .addParam("accesstoken", "Twitter oAuth Access token")
   .addParam("twitterhandle", "Expected Twitter handle")
+  .addOptionalParam(
+    "claimfunds",
+    "Flag indicating if funds should be claimed as well",
+    true,
+    types.boolean
+  )
   .setAction(async (taskArgs, hre) => {
     if (network.name === "hardhat") {
       throw Error(
@@ -231,6 +237,8 @@ task("functions-request", "Initiates a request from an Functions client contract
     // Get the required parameters
     const contractAddr = taskArgs.contract
     const accessToken = taskArgs.accesstoken
+    const expectedTwitterHandle = taskArgs.twitterhandle
+    const claimFundsImmediately = taskArgs.claimfunds
 
     // Attach to the required contracts
     const clientContractFactory = await ethers.getContractFactory("Stork")
@@ -341,7 +349,9 @@ task("functions-request", "Initiates a request from an Functions client contract
       // Initiate the on-chain request after all listeners are initialized
       console.log(`\nRequesting new data for Stork contract ${contractAddr} on network ${network.name}`)
       const requestTx = await clientContract.claimTwitter(
+        expectedTwitterHandle,
         accessToken,
+        claimFundsImmediately,
         overrides
       )
       // If a response is not received within 5 minutes, the request has failed

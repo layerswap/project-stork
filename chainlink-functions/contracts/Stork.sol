@@ -14,11 +14,12 @@ contract Stork is FunctionsClient, ConfirmedOwner {
 
   mapping(bytes32 => address) public requestAddresses;
   mapping(bytes32 => string) public requestExpectedTwitterHandles;
+  mapping(bytes32 => bool) public requestClaimFundsImmediately;
   mapping(string => uint256) public twitterBalances;
   mapping(address => string) public addressTwitterHandles;
 
   uint64 internal constant SUBSCRIPTION_ID = 159;
-  uint32 internal constant GAS_LIMIT = 100000;
+  uint32 internal constant GAS_LIMIT = 200000;
   string internal constant FUNCTION_CODE =
     "const twitterAccessToken = args[0];\n"
     "if (!twitterAccessToken) {\n"
@@ -72,9 +73,18 @@ contract Stork is FunctionsClient, ConfirmedOwner {
     bytes memory err
   ) internal override {
     emit OCRResponse(requestId, response, err);
+
     // Make sure that oracles returned the handle that user was expecting
     assert(keccak256(bytes(requestExpectedTwitterHandles[requestId])) == keccak256(response));
-    addressTwitterHandles[requestAddresses[requestId]] = string(response);
+
+    string memory twitterHandle = string(response);
+    addressTwitterHandles[requestAddresses[requestId]] = twitterHandle;
+
+    uint256 balance = twitterBalances[twitterHandle];
+    if (requestClaimFundsImmediately[requestId] && balance > 0) {
+      twitterBalances[twitterHandle] = 0;
+      payable(requestAddresses[requestId]).transfer(balance);
+    }
   }
 
   /**
@@ -118,19 +128,26 @@ contract Stork is FunctionsClient, ConfirmedOwner {
    *
    * @param expectedTwitterHandle Expected Twitter handle.
    * @param accessToken OAuth2 User Context Twitter access token.
+   * @param claimFundsImmediately Should we claim funds immediately.
    */
-  function claimTwitterHandle(string calldata expectedTwitterHandle, string calldata accessToken)
-    public
-    returns (bytes32)
-  {
+  function claimTwitterHandle(
+    string calldata expectedTwitterHandle,
+    string calldata accessToken,
+    bool claimFundsImmediately
+  ) public returns (bytes32) {
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, FUNCTION_CODE);
+
     string[] memory args = new string[](1);
     args[0] = accessToken;
     req.addArgs(args);
+
     bytes32 assignedReqID = sendRequest(req, SUBSCRIPTION_ID, GAS_LIMIT);
+
     requestAddresses[assignedReqID] = msg.sender;
     requestExpectedTwitterHandles[assignedReqID] = expectedTwitterHandle;
+    requestClaimFundsImmediately[assignedReqID] = claimFundsImmediately;
+
     return assignedReqID;
   }
 
