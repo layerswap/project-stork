@@ -216,3 +216,152 @@ task("functions-request", "Initiates a request from an Functions client contract
       console.log(`Waiting for fulfillment...\n`)
     })
   })
+
+  task("stork-request", "Initiates a request from an Functions client contract")
+  .addParam("contract", "Address of the client contract to call")
+  .addParam("accesstoken", "Access token")
+  .setAction(async (taskArgs, hre) => {
+    if (network.name === "hardhat") {
+      throw Error(
+        'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
+      )
+    }
+
+    // Get the required parameters
+    const contractAddr = taskArgs.contract
+    const accessToken = taskArgs.accesstoken
+
+    // Attach to the required contracts
+    const clientContractFactory = await ethers.getContractFactory("Stork")
+    const clientContract = clientContractFactory.attach(contractAddr)
+    const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
+    const registryAddress = await oracle.getRegistry()
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
+    const registry = await RegistryFactory.attach(registryAddress)
+
+    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
+
+    const request = await generateRequest(requestConfig, taskArgs)
+
+    const overrides = {
+      gasLimit: 1500000,
+    }
+
+    // Check that the subscription is valid
+    let subInfo
+    try {
+      subInfo = await registry.getSubscription(159)
+    } catch (error) {
+      if (error.errorName === "InvalidSubscription") {
+        throw Error(`Subscription ID "${subscriptionId}" is invalid or does not exist`)
+      }
+      throw error
+    }
+
+    // Validate the client contract has been authorized to use the subscription
+    const existingConsumers = subInfo[2].map((addr) => addr.toLowerCase())
+    if (!existingConsumers.includes(contractAddr.toLowerCase())) {
+      throw Error(`Consumer contract ${contractAddr} is not registered to use subscription ${subscriptionId}`)
+    }
+
+    // Use a promise to wait & listen for the fulfillment event before returning
+    await new Promise(async (resolve, reject) => {
+      let requestId
+
+      // Initiate the listeners before making the request
+      // Listen for fulfillment errors
+      oracle.on("UserCallbackError", async (eventRequestId, msg) => {
+        if (requestId == eventRequestId) {
+          console.log("Error in client contract callback function")
+          console.log(msg)
+        }
+      })
+      oracle.on("UserCallbackRawError", async (eventRequestId, msg) => {
+        if (requestId == eventRequestId) {
+          console.log("Raw error in client contract callback function")
+          console.log(Buffer.from(msg, "hex").toString())
+        }
+      })
+      // Listen for successful fulfillment
+      let billingEndEventReceived = false
+      let ocrResponseEventReceived = false
+      clientContract.on("OCRResponse", async (eventRequestId, result, err) => {
+        // Ensure the fulfilled requestId matches the initiated requestId to prevent logging a response for an unrelated requestId
+        if (eventRequestId !== requestId) {
+          return
+        }
+
+        console.log(`Request ${requestId} fulfilled!`)
+        if (result !== "0x") {
+          console.log(
+            `Response returned to client contract represented as a hex string: ${result}\n${getDecodedResultLog(
+              require("../../Functions-request-config"),
+              result
+            )}`
+          )
+        }
+        if (err !== "0x") {
+          console.log(`Error message returned to client contract: "${Buffer.from(err.slice(2), "hex")}"\n`)
+        }
+        ocrResponseEventReceived = true
+        if (billingEndEventReceived) {
+          return resolve()
+        }
+      })
+      // Listen for the BillingEnd event, log cost breakdown & resolve
+      registry.on(
+        "BillingEnd",
+        async (
+          eventRequestId,
+          eventSubscriptionId,
+          eventSignerPayment,
+          eventTransmitterPayment,
+          eventTotalCost,
+          eventSuccess
+        ) => {
+          if (requestId == eventRequestId) {
+            // Check for a successful request & log a mesage if the fulfillment was not successful
+            console.log(`Transmission cost: ${hre.ethers.utils.formatUnits(eventTransmitterPayment, 18)} LINK`)
+            console.log(`Base fee: ${hre.ethers.utils.formatUnits(eventSignerPayment, 18)} LINK`)
+            console.log(`Total cost: ${hre.ethers.utils.formatUnits(eventTotalCost, 18)} LINK\n`)
+            if (!eventSuccess) {
+              console.log(
+                "Error encountered when calling fulfillRequest in client contract.\n" +
+                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
+              )
+              return resolve()
+            }
+            billingEndEventReceived = true
+            if (ocrResponseEventReceived) {
+              return resolve()
+            }
+          }
+        }
+      )
+      // Initiate the on-chain request after all listeners are initialized
+      console.log(`\nRequesting new data for Stork contract ${contractAddr} on network ${network.name}`)
+      const requestTx = await clientContract.claimTwitter(
+        accessToken,
+        overrides
+      )
+      // If a response is not received within 5 minutes, the request has failed
+      setTimeout(
+        () =>
+          reject(
+            "A response not received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
+          ),
+        300_000
+      )
+      console.log(
+        `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`
+      )
+
+      const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+      requestId = requestTxReceipt.events[2].args.id
+      console.log(`\nRequest ${requestId} initiated`)
+    })
+  })
