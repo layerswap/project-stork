@@ -348,7 +348,7 @@ task("functions-request", "Initiates a request from an Functions client contract
       )
       // Initiate the on-chain request after all listeners are initialized
       console.log(`\nRequesting new data for Stork contract ${contractAddr} on network ${network.name}`)
-      const requestTx = await clientContract.claimTwitter(
+      const requestTx = await clientContract.claimTwitterHandle(
         expectedTwitterHandle,
         accessToken,
         claimFundsImmediately,
