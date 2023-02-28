@@ -71,4 +71,4 @@ function claimTwitterHandle(
 
 - Stork Contract [chainlink-functions/contracts/Stork.sol](/chainlink-functions/contracts/Stork.sol)
 - Stork Javascript Chainlink Function [chainlink-functions/stork-twitter.js](/chainlink-functions/stork-twitter.js)
-- Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#54), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#220)
+- Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220)
