@@ -15,9 +15,9 @@ The goal of Stork Alpha is to allow users to send digital assets to a Twitter ha
   - [How it works?](#how-it-works)
   - [AccessToken privacy](#accesstoken-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
-  - [Emmbeding JS code in Smart Contract](#emmbeding-js-code-in-smart-contract)
+  - [Emmbeded JS code in Smart Contract](#emmbeded-js-code-in-smart-contract)
   - [Conclusion](#conclusion)
-  - [Contract/Scripts links](#contractscripts-links)
+  - [Contracts and Scripts](#contracts-and-scripts)
 
 ## How it works?
 
@@ -86,14 +86,14 @@ function claimTwitterHandle(
 The claim transaction requires user to pass in the expected twitter handle along side with access token. This create one layer of protection, once DON network comes to consesus what is the twitter handle of the access token, its is checked against expected twitter handle. User has no doubt about his/her twitter handle, and with this solution it even doesnt need to trust DON network, because even in a case when unexpectingly DON network decides wrong twitter handle, Stork will attach wrong identity.
 
 
-## Emmbeding JS code in Smart Contract
+## Emmbeded JS code in Smart Contract
 DON nodes receive a source code of JS to run. Even tho it was not documented, we thought that it should be nice to embed JS inside a smart contract. In a perfect world users who want to interact with the Stork contract, can easily see (what is the JS code)[/chainlink-functions/contracts/Stork.sol#L23] that DON nodes are going to execute.
 
 ## Conclusion
 
 Stork is a promising project that aims to leverage social identity for transacting digital assets. While it is not ready for production use, it provides a solid foundation for further development and exploration of the use of Chainlink Functions for on-chain identity verification. The project code can be found on the links provided below.
 
-## Contract/Scripts links
+## Contracts and Scripts
 
 - Stork Contract [chainlink-functions/contracts/Stork.sol](/chainlink-functions/contracts/Stork.sol)
 - Stork Javascript Chainlink Function [chainlink-functions/stork-twitter.js](/chainlink-functions/stork-twitter.js)
