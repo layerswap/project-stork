@@ -9,11 +9,14 @@ const inter = Inter({ subsets: ['latin'] })
 
 function getTwitterOauthUrl() {
   let { authClient } = GetClients();
+  let state = crypto.randomUUID();
   const authUrl = authClient.generateAuthURL({
-    state: "my-state",
+    state: state,
     code_challenge_method: "plain",
-    code_challenge: "challenge"
+    code_challenge: state
   });
+
+  window.localStorage.setItem('OAUTH_STATE', state);
 
   return authUrl;
 }
