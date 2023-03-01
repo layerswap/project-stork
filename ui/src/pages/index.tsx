@@ -1,7 +1,5 @@
 import { GetClients } from "../lib/twitterClient";
 import { Web3Button } from '@web3modal/react';
-import { Head } from "next/document";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 

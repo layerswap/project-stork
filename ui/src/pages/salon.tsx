@@ -36,7 +36,7 @@ export default function Salon() {
     return (
         <>
             <div>
-                <p>Connecting to Twitter. You'll be redirected soon.</p>
+                <p>Connecting to Twitter. You will be redirected soon.</p>
             </div>
         </>
     )
