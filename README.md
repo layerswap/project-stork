@@ -91,11 +91,12 @@ The claim transaction requires the user to provide the expected Twitter handle a
 ## Emmbeded JS code
 
 ```solidity
+...
 string internal constant FUNCTION_CODE =
-"const twitterAccessToken = args[0];\n"
-"if (!twitterAccessToken) {\n"
-"  throw Error('AccessToken is required.');\n"
-....
+    "const twitterAccessToken = args[0];\n"
+    "if (!twitterAccessToken) {\n"
+    "  throw Error('AccessToken is required.');\n"
+...
 ```
 
 The DON network operates by having its nodes execute a provided JavaScript code. In order to make the interaction between users and the Stork contract more transparent, we have [embedded the JavaScript code](/chainlink-functions/contracts/Stork.sol#L23) inside the smart contract. This allows users to easily view the code that will be executed by the DON nodes.
