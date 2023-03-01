@@ -8,7 +8,7 @@ export default function Salon() {
     useEffect(() => {
         let { state, code } = router.query;
         if (Boolean(state) && Boolean(code)) {
-            let storedState = window.localStorage.getItem("OAUTH_STATE");
+            let storedState = window.sessionStorage.getItem("OAUTH_STATE");
             if (state != storedState) {
                 throw new Error("States didn't match.");
             }

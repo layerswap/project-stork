@@ -9,7 +9,7 @@ export default function Claim() {
     let userData = JSON.parse(window.localStorage.getItem("USER_CRED") || "") as { token: string, userName: string };
 
     const { isConnected, address } = useAccount()
-    const { data, error: readError, isError: isReadError } = useReadBalance(userData?.userName);
+    const { data: balance, error: readBalanceError, isError: isReadBalanceError } = useReadBalance(userData?.userName);
 
     const { data: handleOfAddressData } = useContractRead({
         address: STORK_CONTRACT_ADDRESS,
@@ -68,17 +68,18 @@ export default function Claim() {
     let claimTxHash = writeClaimHandleData?.hash || writeClaimFundsData?.hash;
     let isClaimError = isPrepareClaimHandleError || isWriteClaimHandleError || isPrepareClaimFundsError || isWriteClaimFundsError;
     let claimError = prepareClaimHandleError || writeClaimHandleError || prepareClaimFundsError || writeClaimFundsError;
-    let canClaim = (Boolean(writeClaimFunds) || Boolean(writeClaimHandle)) && !isClaimLoading;
+    let canClaim = (Boolean(writeClaimFunds) || Boolean(writeClaimHandle)) && !isClaimLoading && balance?.gt(0);
 
     return (
         <>
             <div>
                 <p>  Yo {userData.userName} token is {userData.token};</p>
-                {readError &&
-                    `Couldn't fetch balance because of ${readError}`
+                {readBalanceError &&
+                    `Couldn't fetch balance because of ${readBalanceError}`
                 }
-                {data &&
-                    `Your balance is ${data}`
+                <p>{!handleOfAddressData || handleOfAddressData == '' ? "Address not connected to twitter" : ''}</p>
+                {balance &&
+                    `Your balance is ${balance}`
                 }
                 {!isConnected &&
                     <p>Connect wallet to claim your balance.</p>
@@ -114,8 +115,8 @@ export default function Claim() {
     )
 }
 
-function useReadBalance(userName: string | undefined): { data: any; error: any; isError: any; } {
-    return useContractRead({
+function useReadBalance(userName: string | undefined): typeof data {
+    let data = useContractRead({
         address: STORK_CONTRACT_ADDRESS,
         abi: storkABI,
         functionName: "balanceOfTwitterHandle",
@@ -123,4 +124,6 @@ function useReadBalance(userName: string | undefined): { data: any; error: any; 
         args: [userName!],
         enabled: Boolean(userName)
     });
+
+    return data;
 }

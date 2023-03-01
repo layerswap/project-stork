@@ -16,7 +16,7 @@ function getTwitterOauthUrl() {
     code_challenge: state
   });
 
-  window.localStorage.setItem('OAUTH_STATE', state);
+  window.sessionStorage.setItem('OAUTH_STATE', state);
 
   return authUrl;
 }
