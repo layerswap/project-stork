@@ -24,6 +24,8 @@ The goal of Stork is to allow users to send digital assets to a Twitter handle. 
 
 Bob wants to send `10 MATIC` to `@elonmusk`. As we all know there is no such thing as @elonmusk in a blockchain. So to be able to define what is `@elonmusk` we need an external "authority" which can map `@elonmusk` to an on-chain destination - address. This is where newly released ChainLink functions come into play:
 
+Bob wants to send `10 MATIC` to `@elonmusk`, however, it is not possible to send funds to a Twitter handle directly in a blockchain network. An external "authority" is needed to map the Twitter handle to an on-chain destination, that is, an address that can receive funds on the blockchain. This is where recently released ChainLink functions come into play:
+
 > Chainlink Functions provides your smart contracts with access to a trust-minimized compute infrastructure. Your smart contract sends your code to a Decentralized Oracle Network (DON), and each DON’s oracle runs the same code in a serverless environment. The DON aggregates all the independent runs and returns the final result to your smart contract. Your code can be anything from simple computation to fetching data from API providers. 
 > 
 > Check out [Chainlink Functions Official Documentation](https://docs.chain.link/chainlink-functions).
