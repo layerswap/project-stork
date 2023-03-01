@@ -1,4 +1,6 @@
-# Stork Alpha - Leveraging Twitter Social Identity for Transacting Digital Assets
+# Stork Alpha
+
+Leveraging Social Identity for Transacting Digital Assets
 
 Stork Alpha is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and is deployed on Polygon Mumbai.
 
@@ -6,7 +8,18 @@ The goal of Stork Alpha is to allow users to send digital assets to a Twitter ha
 
 > :exclamation: Attention! Stork Alpha is a hackathon project, and its smart contracts are not audited and are not meant to run on production. Users should use Stork at their own risk.
 
-## Overview
+## Table of Contents
+
+- [Stork Alpha](#stork-alpha)
+  - [Table of Contents](#table-of-contents)
+  - [How it works?](#how-it-works)
+  - [AccessToken privacy](#accesstoken-privacy)
+  - [Expected Twitter Handle](#expected-twitter-handle)
+  - [Emmbeding JS code in Smart Contract](#emmbeding-js-code-in-smart-contract)
+  - [Conclusion](#conclusion)
+  - [Contract/Scripts links](#contractscripts-links)
+
+## How it works?
 
 Bob wants to send 10 Matic to @elonmusk. As we all know there is no such thing @elonmusk in a blockchain. So to be able to define what is @elonmusk we need an external "authority" who can map @elonmusk to an on-chain understandable destination, and address. This is where newly released ChainLink functions come into play:
 
@@ -69,6 +82,9 @@ function claimTwitterHandle(
  string calldata accessToken,
  bool claimFundsImmediately) public
 ```
+
+The claim transaction requires user to pass in the expected twitter handle along side with access token. This create one layer of protection, once DON network comes to consesus what is the twitter handle of the access token, its is checked against expected twitter handle. User has no doubt about his/her twitter handle, and with this solution it even doesnt need to trust DON network, because even in a case when unexpectingly DON network decides wrong twitter handle, Stork will attach wrong identity.
+
 
 ## Emmbeding JS code in Smart Contract
 DON nodes receive a source code of JS to run. Even tho it was not documented, we thought that it should be nice to embed JS inside a smart contract. In a perfect world users who want to interact with the Stork contract, can easily see (what is the JS code)[/chainlink-functions/contracts/Stork.sol#L23] that DON nodes are going to execute.
