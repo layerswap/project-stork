@@ -1,9 +1,10 @@
 import { Client, auth } from "twitter-api-sdk";
 import { TWITTER_CLIENT_ID } from "./constants";
 
-const authClient = new auth.OAuth2User({
+let homeUrl = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || 'http://www.localhost:3000';
+let authClient = new auth.OAuth2User({
     client_id: TWITTER_CLIENT_ID as string,
-    callback: "http://www.localhost:3000/salon",
+    callback: `${homeUrl}/salon`,
     scopes: ["tweet.read", "users.read"],
 });
 
