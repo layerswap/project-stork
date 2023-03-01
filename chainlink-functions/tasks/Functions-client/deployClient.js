@@ -63,12 +63,13 @@ task("functions-deploy-client", "Deploys the FunctionsConsumer contract")
     console.log(`Deploying Stork contract to ${network.name}`)
 
     const oracleAddress = networkConfig[network.name]["functionsOracleProxy"]
+    const forwarderAddress = networkConfig[network.name]["forwarder"]
 
     console.log("\n__Compiling Contracts__")
     await run("compile")
 
     const clientContractFactory = await ethers.getContractFactory("Stork")
-    const clientContract = await clientContractFactory.deploy(oracleAddress)
+    const clientContract = await clientContractFactory.deploy(oracleAddress, forwarderAddress)
 
     console.log(
       `\nWaiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${clientContract.deployTransaction.hash} to be confirmed...`
@@ -83,7 +84,7 @@ task("functions-deploy-client", "Deploys the FunctionsConsumer contract")
         await clientContract.deployTransaction.wait(Math.max(6 - VERIFICATION_BLOCK_CONFIRMATIONS, 0))
         await run("verify:verify", {
           address: clientContract.address,
-          constructorArguments: [oracleAddress],
+          constructorArguments: [oracleAddress, forwarderAddress],
         })
         console.log("Contract verified")
       } catch (error) {

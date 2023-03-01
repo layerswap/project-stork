@@ -45,6 +45,7 @@
     "dotenv": "^16.0.3",
     "is-http-url": "^2.0.0",
     "jsrsasign": "^10.6.0",
+    "openzeppelin-solidity": "^3.4.2",
     "readline-promise": "^1.0.5",
     "vm2": "^3.9.11"
   },

@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.9;
 
 import "./dev/functions/FunctionsClient.sol";
 // import "@chainlink/contracts/src/v0.8/dev/functions/FunctionsClient.sol"; // Once published
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
+import "@openzeppelin/contracts/metatx/MinimalForwarder.sol";
 
 /**
  * @title Stork contract - ETHDenver Hackathon Project
  * @notice This contract is used for allowing users to send and claim assets trustlessly to/from twitter handles
  */
-contract Stork is FunctionsClient, ConfirmedOwner {
+contract Stork is FunctionsClient, ConfirmedOwner, ERC2771Context {
   using Functions for Functions.Request;
 
   mapping(bytes32 => address) public requestAddresses;
@@ -57,7 +59,10 @@ contract Stork is FunctionsClient, ConfirmedOwner {
    *
    * @param oracle - The FunctionsOracle contract
    */
-  constructor(address oracle) FunctionsClient(oracle) ConfirmedOwner(msg.sender) {}
+  constructor(address oracle, MinimalForwarder forwarder)
+    FunctionsClient(oracle)
+    ERC2771Context(address(forwarder))
+    ConfirmedOwner(msg.sender) {}
 
   /**
    * @notice Callback that is invoked once the DON has resolved the request or hit an error
@@ -144,7 +149,7 @@ contract Stork is FunctionsClient, ConfirmedOwner {
 
     bytes32 assignedReqID = sendRequest(req, SUBSCRIPTION_ID, GAS_LIMIT);
 
-    requestAddresses[assignedReqID] = msg.sender;
+    requestAddresses[assignedReqID] = _msgSender();
     requestExpectedTwitterHandles[assignedReqID] = expectedTwitterHandle;
     requestClaimFundsImmediately[assignedReqID] = claimFundsImmediately;
 
@@ -156,9 +161,9 @@ contract Stork is FunctionsClient, ConfirmedOwner {
    *
    */
   function claimFunds() public {
-    uint256 balance = twitterBalances[addressTwitterHandles[msg.sender]];
+    uint256 balance = twitterBalances[addressTwitterHandles[_msgSender()]];
     assert(balance > 0);
-    twitterBalances[addressTwitterHandles[msg.sender]] = 0;
-    payable(msg.sender).transfer(balance);
+    twitterBalances[addressTwitterHandles[_msgSender()]] = 0;
+    payable(_msgSender()).transfer(balance);
   }
 }

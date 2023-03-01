@@ -33,6 +33,7 @@ const addClientConsumerToSubscription = async (subscriptionId, consumer) => {
   const accounts = await ethers.getSigners()
   const signer = accounts[0]
   if (preSubInfo[1] !== signer.address) {
+    console.log(preSubInfo[1] + " ||| " + signer.address);
     throw Error("The current wallet is not the owner of the subscription")
   }
 

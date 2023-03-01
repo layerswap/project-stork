@@ -13,6 +13,7 @@ The goal of Stork is to allow users to send digital assets to a Twitter handle. 
 - [Stork - Alpha](#stork---alpha)
   - [Table of Contents](#table-of-contents)
   - [How it works?](#how-it-works)
+  - [Meta Transactions](#meta-transactions)
   - [AccessToken privacy](#accesstoken-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
   - [Emmbeded JS code](#emmbeded-js-code)
@@ -61,6 +62,27 @@ function claimFunds() public
 The purpose of this function is to determine if `msg.Sender` has an associated Twitter handle. If a handle is found, the function will proceed to release the previously locked funds to the specified handle.
 
 To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address, without requiring any further interaction with the contract.
+
+## Meta Transactions
+
+The current process of claiming funds in the Stork system requires a minimum of one transaction, which necessitates paying gas fees. This approach presents a problem if the user has no `MATIC`. The issue is compounded as Stork is focused on making onboarding to crypto more accessible. To resolve this, [OpenZeppelin Defender Relayers](https://docs.openzeppelin.com/defender/relay) and [Meta transactions](https://docs.openzeppelin.com/contracts/4.x/api/metatx) can be leveraged. Additionally, it is important to note that the beta version of Chainlink Functions only permits whitelisted addresses to call DON network. Thankfully, with meta-transactions, both problems can be addressed with a single solution.
+
+> Gasless meta-transactions offer users a more seamless experience, and potentially one where they don’t have to spend as much money to engage with the blockchain. This method gives users the option to sign a transaction for free and have it securely executed by a third party, with that other party paying the gas to execute the transaction.
+
+> A gasless meta-transaction relay can be easily and securely implemented using OpenZeppelin Defender by way of a Relayer. A Defender Relay allows you to send transactions easily and handles private key storage, transaction signing, nonce management, gas estimation, and automatic resubmissions if necessary.
+
+> Check out [OpenZeppelin Meta Transactions Documentation](https://docs.openzeppelin.com/defender/guide-metatx).
+
+This is how flow will look like with meta transactions:
+
+1. The user will sign a transaction message.
+2. The signed transaction message will be sent to the OpenZeppelin Defender Relayer.
+3. The Relayer will send the signed transaction to the `MinimalForwarder` and pay the gas fees on behalf of the user.
+4. The `MinimalForwarder` will extract the signed transaction and call the actual Stork contract.
+4.1. Stork contract will pass in arguemnts to DON network
+...
+
+It is apparent that the Stork contract calls that involve DON interactions are routed through the `MinimalForwarder`. As a result, we can request Chainlink to whitelist the `MinimalForwarder` to enable its use for all users.
 
 ## AccessToken privacy
 
@@ -112,7 +134,13 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ## Run, deploy and test
 
 1. [Setup your environment](https://docs.chain.link/chainlink-functions/getting-started#set-up-your-environment)
-2. Deploy Stork Contract
+2. Deploy a `MinimalForwarder` and update forwarder contract address in [network-config](chainlink-functions/network-config.js)
+
+```console
+npx hardhat functions-deploy-forwarder --network mumbai
+```
+
+3. Deploy Stork Contract
 
 ```console
 npx hardhat functions-deploy-stork --network mumbai --verify false
@@ -139,7 +167,7 @@ Stork is a promising project that aims to leverage social identity for transacti
 
 - Stork Contract [chainlink-functions/contracts/Stork.sol](/chainlink-functions/contracts/Stork.sol)
 - Stork Javascript Chainlink Function [chainlink-functions/stork-twitter.js](/chainlink-functions/stork-twitter.js)
-- Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220)
+- Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220), [Deploy MinimalForwarder](chainlink-functions/tasks/Functions-client/deployForwarder.js)
 
 ## Afterword and Authors
 - [Aram Kocharyan](https://twitter.com/bot_insane)
