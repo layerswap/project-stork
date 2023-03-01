@@ -117,12 +117,14 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ```console
 npx hardhat functions-deploy-stork --network mumbai --verify false
 ```
+
 3. [Create a new subscription and fund it](https://docs.chain.link/chainlink-functions/getting-started#configure-your-on-chain-resources)
 4. Add newly created Stork contract as functions consumer
 
 ```console
 npx hardhat functions-sub-add --subid SUBSCRIPTION_ID --contract STORK_CONTRACT_ADDRESS --network mumbai
 ```
+
 5. Send request to deployed Stork contract
 
 ```console
