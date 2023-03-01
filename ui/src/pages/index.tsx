@@ -3,7 +3,7 @@ import { Web3Button } from '@web3modal/react';
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-function getTwitterOauthUrlAndState() {
+function getTwitterOauthUrl() {
   let { authClient } = GetClients();
 
   let state = crypto.randomUUID();
@@ -14,7 +14,7 @@ function getTwitterOauthUrlAndState() {
   });
 
 
-  return { authUrl: authUrl, state: state };
+  return authUrl;
 }
 
 export default function Home() {
@@ -52,7 +52,7 @@ export default function Home() {
                   <h1 className="text-4xl font-bold leading-tight text-gray-900 sm:text-5xl sm:leading-tight lg:leading-tight lg:text-6xl font-pj">Send $MATIC to anyone with a twitter handle</h1>
                   <p className="mt-2 text-lg text-gray-600 sm:mt-8 font-inter">Stork enables anyone on Twitter to leverage their social identity for transacting digital assets</p>
 
-                  <form onSubmit={(e)=>{
+                  <form onSubmit={(e) => {
                     e.preventDefault();
                     router.push(`/send?handle=${handle}`)
                   }} method="POST" className="mt-8 mb-2 sm:mt-10">
@@ -73,13 +73,8 @@ export default function Home() {
                     </div>
 
                   </form>
-                  <button
-                    onClick={() => {
-                      let { authUrl, state } = getTwitterOauthUrlAndState();
-                      window.localStorage.setItem('OAUTH_STATE', state);
-                      router.push(authUrl);
-
-                    }}
+                  <a
+                    href={getTwitterOauthUrl()}
                     title=""
                     className="inline-flex items-center justify-center w-full px-6 py-3 mt-4 text-lg font-bold text-gray-900 transition-all duration-200 border-2 border-gray-400 sm:w-auto sm:mt-0 rounded-xl font-pj focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-900 focus:bg-gray-900 hover:text-white focus:text-white hover:border-gray-900 focus:border-gray-900"
                     role="button"
@@ -89,7 +84,7 @@ export default function Home() {
                     </svg>
 
                     Check your balance
-                  </button>
+                  </a>
                 </div>
 
                 <div className="flex items-center justify-center mt-10 space-x-6 lg:justify-start sm:space-x-8">

@@ -8,10 +8,6 @@ export default function Salon() {
     useEffect(() => {
         let { state, code } = router.query;
         if (Boolean(state) && Boolean(code)) {
-            let storedState = window.localStorage.getItem("OAUTH_STATE");
-            if (state != storedState) {
-                throw new Error("States didn't match.");
-            }
 
             const fetchData = async () => {
                 let response = await fetch(`${window.location.origin}/api/getAccessToken?code=${code}&state=${state}&redirectBaseUrl=${window.location.origin}`)
