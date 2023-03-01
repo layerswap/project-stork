@@ -16,6 +16,7 @@ The goal of Stork is to allow users to send digital assets to a Twitter handle. 
   - [AccessToken privacy](#accesstoken-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
   - [Emmbeded JS code](#emmbeded-js-code)
+  - [Run, deploy and test](#run-deploy-and-test)
   - [Conclusion](#conclusion)
   - [Contracts and Scripts](#contracts-and-scripts)
   - [Afterword and Authors](#afterword-and-authors)
@@ -108,6 +109,25 @@ string internal constant FUNCTION_CODE =
 
 The DON network operates by having its nodes execute a provided JavaScript code. In order to make the interaction between users and the Stork contract more transparent, we have [embedded the JavaScript code](/chainlink-functions/contracts/Stork.sol#L23) inside the smart contract. This allows users to easily view the code that will be executed by the DON nodes.
 
+## Run, deploy and test
+
+1. [Setup your environment](https://docs.chain.link/chainlink-functions/getting-started#set-up-your-environment)
+2. Deploy Stork Contract
+
+```console
+npx hardhat functions-deploy-stork --network mumbai --verify false
+```
+3. [Create a new subscription and fund it](https://docs.chain.link/chainlink-functions/getting-started#configure-your-on-chain-resources)
+4. Add newly created Stork contract as functions consumer
+
+```console
+npx hardhat functions-sub-add --subid SUBSCRIPTION_ID --contract STORK_CONTRACT_ADDRESS --network mumbai
+```
+5. Send request to deployed Stork contract
+
+```console
+npx hardhat stork-request --contract STORK_CONTRACT_ADDRESS --accesstoken TWITTER_ACCESS_TOKEN --network mumbai --twitterhandle TWITTER_HANDLE
+```
 
 ## Conclusion
 
