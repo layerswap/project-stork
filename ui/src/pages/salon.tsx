@@ -8,10 +8,11 @@ export default function Salon() {
     useEffect(() => {
         let { state, code } = router.query;
         if (Boolean(state) && Boolean(code)) {
-            let storedState = window.sessionStorage.getItem("OAUTH_STATE");
+            let storedState = window.localStorage.getItem("OAUTH_STATE");
             if (state != storedState) {
                 throw new Error("States didn't match.");
             }
+
             const fetchData = async () => {
                 let response = await fetch(`${window.location.origin}/api/getAccessToken?code=${code}&state=${state}&redirectBaseUrl=${window.location.origin}`)
                 let json = await response.json();
@@ -35,7 +36,7 @@ export default function Salon() {
     return (
         <>
             <div>
-                <p>  Yo</p>
+                <p>Connecting to Twitter. You'll be redirected soon.</p>
             </div>
         </>
     )
