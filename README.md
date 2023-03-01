@@ -18,7 +18,7 @@ The goal of Stork Alpha is to allow users to send digital assets to a Twitter ha
   - [Emmbeded JS code](#emmbeded-js-code)
   - [Conclusion](#conclusion)
   - [Contracts and Scripts](#contracts-and-scripts)
-  - [Authors](#authors)
+  - [Afterword and Authors](#afterword-and-authors)
 
 ## How it works?
 
@@ -119,6 +119,6 @@ Stork is a promising project that aims to leverage social identity for transacti
 - Stork Javascript Chainlink Function [chainlink-functions/stork-twitter.js](/chainlink-functions/stork-twitter.js)
 - Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220)
 
-## Authors
+## Afterword and Authors
 - [Aram Kocharyan](https://twitter.com/bot_insane) (CEO at @Layerswap)
 - [Babken Gevorgyan](https://twitter.com/babgev) (CPO at @Layerswap)
