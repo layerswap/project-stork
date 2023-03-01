@@ -21,7 +21,7 @@ The goal of Stork Alpha is to allow users to send digital assets to a Twitter ha
 
 ## How it works?
 
-Bob wants to send 10 MATIC to @elonmusk. As we all know there is no such thing as @elonmusk in a blockchain. So to be able to define what is @elonmusk we need an external "authority" which can map @elonmusk to an on-chain destination - address. This is where newly released ChainLink functions come into play:
+Bob wants to send `10 MATIC` to `@elonmusk`. As we all know there is no such thing as @elonmusk in a blockchain. So to be able to define what is `@elonmusk` we need an external "authority" which can map `@elonmusk` to an on-chain destination - address. This is where newly released ChainLink functions come into play:
 
 > Chainlink Functions provides your smart contracts with access to a trust-minimized compute infrastructure. Your smart contract sends your code to a Decentralized Oracle Network (DON), and each DON’s oracle runs the same code in a serverless environment. The DON aggregates all the independent runs and returns the final result to your smart contract. Your code can be anything from simple computation to fetching data from API providers. 
 > 
@@ -30,15 +30,15 @@ Bob wants to send 10 MATIC to @elonmusk. As we all know there is no such thing a
 
 We developed a Javascript function that requires the user's Twitter access token to call the Twitter API to retrieve the Twitter handle. The code will then be sent to the [Decentralized Oracle Network (DON)](https://docs.chain.link/chainlink-functions/resources/concepts/) for independent nodes to run the same code, obtain the Twitter handle, and reach a consensus before writing it back to the Stork contract. This construct will enable trust-minimized mapping of the Twitter handle to an on-chain address, thus facilitating the successful transfer to the intended recipient.
 
-Returning to the scenario at hand, Bob aims to send 10 MATIC to @elonmusk. To facilitate this transaction, Bob calls the Stork contract, providing 10 MATIC and a Twitter handle associated with the intended recipient.
+Returning to the scenario at hand, Bob aims to send `10 MATIC` to `@elonmusk.` To facilitate this transaction, Bob calls the Stork contract, providing `10 MATIC` and a Twitter handle associated with the intended recipient.
 
-```
+```solidity
 sendToTwitterHandle(string calldata handle) public payable
 ```
 
 To claim the assets transferred to the @elonmusk handle, @elonmusk must first prove ownership of the handle and link it to his/her on-chain address. This process involves calling the Stork contract, which verifies ownership and establishes the mapping between the handle and the on-chain address.
 
-```
+```solidity
 function claimTwitterHandle(
  string calldata expectedTwitterHandle,
  string calldata accessToken,
@@ -49,17 +49,17 @@ Upon calling the Stork contract, the associated [Javascript code](/chainlink-fun
 
 Once this verification is complete, the user can claim the funds by calling the Stork contract.
 
-```
+```solidity
 function claimFunds() public
 ```
 
-The purpose of this function is to determine if msg.Sender has an associated Twitter handle. If a handle is found, the function will proceed to release the previously locked funds to the specified handle.
+The purpose of this function is to determine if `msg.Sender` has an associated Twitter handle. If a handle is found, the function will proceed to release the previously locked funds to the specified handle.
 
 To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address, without requiring any further interaction with the contract.
 
 ## AccessToken privacy
 
-```
+```solidity
 function claimTwitterHandle(
  string calldata expectedTwitterHandle,
  >>> string calldata accessToken, <<<<
@@ -79,7 +79,7 @@ While this solution offers improved security, it is currently not possible to im
 
 ## Expected Twitter Handle
 
-```
+```solidity
 function claimTwitterHandle(
  >>> string calldata expectedTwitterHandle, <<<
  string calldata accessToken,
