@@ -5,6 +5,7 @@ import styles from '@/styles/Home.module.css'
 import { Client, auth } from "twitter-api-sdk";
 import {authClient} from "../lib/twitterClient";
 import crypto from "crypto";
+import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -34,7 +35,7 @@ export default function Home() {
             <code className={styles.code}>pages/index.tsx</code>
           </p>
           <div>
-            <a
+            <Link
               href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
               target="_blank"
               rel="noopener noreferrer"
@@ -48,7 +49,7 @@ export default function Home() {
                 height={24}
                 priority
               />
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -73,7 +74,7 @@ export default function Home() {
         </div>
 
         <div className={styles.grid}>
-          <a
+          <Link
             className={styles.card}
             href={getTwitterOauthUrl()}
           >
@@ -83,9 +84,9 @@ export default function Home() {
             <p className={inter.className}>
               Connect twitter account to claim assets
             </p>
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/send"
             className={styles.card}
             rel="noopener noreferrer"
@@ -96,7 +97,7 @@ export default function Home() {
             <p className={inter.className}>
               Send assets to someone
             </p>
-          </a>
+          </Link>
         </div>
       </main>
     </>
