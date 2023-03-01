@@ -87,7 +87,7 @@ The claim transaction requires user to pass in the expected twitter handle along
 
 
 ## Emmbeded JS code in Smart Contract
-DON nodes receive a source code of JS to run. Even tho it was not documented, we thought that it should be nice to embed JS inside a smart contract. In a perfect world users who want to interact with the Stork contract, can easily see (what is the JS code)[/chainlink-functions/contracts/Stork.sol#L23] that DON nodes are going to execute.
+DON nodes receive a source code of JS to run. Even tho it was not documented, we thought that it should be nice to embed JS inside a smart contract. In a perfect world users who want to interact with the Stork contract, can easily see [what is the JS code](/chainlink-functions/contracts/Stork.sol#L23) that DON nodes are going to execute.
 
 ## Conclusion
 
