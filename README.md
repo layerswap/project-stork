@@ -79,7 +79,7 @@ This is how flow will look like with meta transactions:
 2. The signed transaction message will be sent to the OpenZeppelin Defender Relayer.
 3. The Relayer will send the signed transaction to the `MinimalForwarder` and pay the gas fees on behalf of the user.
 4. The `MinimalForwarder` will extract the signed transaction and call the actual Stork contract.
-4.1. Stork contract will pass in arguemnts to DON network
+5. Stork contract will call DON network ...
 ...
 
 It is apparent that the Stork contract calls that involve DON interactions are routed through the `MinimalForwarder`. As a result, we can request Chainlink to whitelist the `MinimalForwarder` to enable its use for all users.
