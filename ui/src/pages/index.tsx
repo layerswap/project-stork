@@ -2,14 +2,13 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
-import { Client, auth } from "twitter-api-sdk";
-import {authClient} from "../lib/twitterClient";
-import crypto from "crypto";
+import { GetClients } from "../lib/twitterClient";
 import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] })
 
-function getTwitterOauthUrl() {  
+function getTwitterOauthUrl() {
+  let { authClient } = GetClients();
   const authUrl = authClient.generateAuthURL({
     state: "my-state",
     code_challenge_method: "plain",
@@ -76,7 +75,7 @@ export default function Home() {
         <div className={styles.grid}>
           <Link
             className={styles.card}
-            href={getTwitterOauthUrl()}
+            href={getTwitterOauthUrl() ?? ''}
           >
             <h2 className={inter.className}>
               Claim <span>-&gt;</span>

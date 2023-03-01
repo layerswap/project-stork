@@ -1,6 +1,6 @@
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import { authClient, client } from "../lib/twitterClient";
-import {useRouter} from 'next/router';
+import { GetClients } from "../lib/twitterClient";
+import { useRouter } from 'next/router';
 
 export default function Salon(userCreds: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const router = useRouter();
@@ -17,9 +17,10 @@ export default function Salon(userCreds: InferGetServerSidePropsType<typeof getS
 }
 
 export const getServerSideProps: GetServerSideProps<{ token: string | undefined, userName: string | undefined }> = async (context) => {
+    let { authClient, client } = GetClients();
     const STATE = "my-state";
 
-    authClient.generateAuthURL({
+    authClient?.generateAuthURL({
         state: STATE,
         code_challenge_method: "plain",
         code_challenge: "challenge"
@@ -31,7 +32,7 @@ export const getServerSideProps: GetServerSideProps<{ token: string | undefined,
         console.log("State didn't match");
     }
     else {
-        await authClient.requestAccessToken(code as string);
+        await authClient?.requestAccessToken(code as string);
     }
 
     const token = authClient.token?.access_token;
