@@ -120,5 +120,6 @@ Stork is a promising project that aims to leverage social identity for transacti
 - Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220)
 
 ## Afterword and Authors
-- [Aram Kocharyan](https://twitter.com/bot_insane) (CEO at @Layerswap)
-- [Babken Gevorgyan](https://twitter.com/babgev) (CPO at @Layerswap)
+- [Aram Kocharyan](https://twitter.com/bot_insane)
+- [Babken Gevorgyan](https://twitter.com/babgev)
+- [Anna Tantushyan](https://twitter.com/TantushyanAnna)
