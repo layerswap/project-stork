@@ -17,7 +17,7 @@ The goal of Stork is to allow users to send digital assets to a Twitter handle. 
   - [AccessToken privacy](#accesstoken-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
   - [Emmbeded JS code](#emmbeded-js-code)
-  - [Run, deploy and test](#run-deploy-and-test)
+  - [Run, deploy, and test](#run-deploy-and-test)
   - [Conclusion](#conclusion)
   - [Contracts and Scripts](#contracts-and-scripts)
   - [Afterword and Authors](#afterword-and-authors)
@@ -73,13 +73,13 @@ The current process of claiming funds in the Stork system requires a minimum of 
 >
 > Check out [OpenZeppelin Meta Transactions Documentation](https://docs.openzeppelin.com/defender/guide-metatx).
 
-This is how flow will look like with meta transactions:
+This is how the process will look like with meta transactions:
 
 1. The user will sign a transaction message.
 2. The signed transaction message will be sent to the OpenZeppelin Defender Relayer.
 3. The Relayer will send the signed transaction to the `MinimalForwarder` and pay the gas fees on behalf of the user.
 4. The `MinimalForwarder` will extract the signed transaction and call the actual Stork contract.
-5. Stork contract will call DON network ...
+5. Stork contract will call the DON network ... and do the rest as explained above
 ...
 
 It is apparent that the Stork contract calls that involve DON interactions are routed through the `MinimalForwarder`. As a result, we can request Chainlink to whitelist the `MinimalForwarder` to enable its use for all users.
@@ -102,7 +102,7 @@ To address this issue, we propose a solution that encrypts the access token befo
 2. The public key is publicly shared.
 3. Whenever a user wants to interact with the Stork contract, they must encrypt the access token using the public key and transmit it over the network.
 4. The Chainlink javascript function will receive the encrypted access token, as well as the off-chain secret private key, which can be used to decrypt the access token and call Twitter.
-   
+ 
 While this solution offers improved security, it is currently not possible to implement due to the beta status of Chainlink functions, which currently only support vanilla javascript functions. However, once basic cryptographic functionality is added, this solution can be implemented to enhance the security and privacy of users.
 
 ## Expected Twitter Handle
@@ -115,7 +115,7 @@ function claimTwitterHandle(
  bool claimFundsImmediately) public
 ```
 
-The claim transaction requires the user to provide the expected Twitter handle along with the access token. This provides a layer of protection as once the DON network comes to a consensus on the actual Twitter handle associated with the access token, it is checked against the expected handle. This eliminates any doubt the user may have about DON network unexpectedly deciding on the wrong Twitter handle.
+The claim transaction requires the user to provide the expected Twitter handle along with the access token. This provides a layer of protection as once the DON network comes to a consensus on the actual Twitter handle associated with the access token, it is checked against the expected handle. This eliminates any doubt the user may have about the DON network unexpectedly deciding on the wrong Twitter handle.
 
 ## Emmbeded JS code
 
@@ -123,18 +123,18 @@ The claim transaction requires the user to provide the expected Twitter handle a
 ```solidity
 ...
 string internal constant FUNCTION_CODE =
-    "const twitterAccessToken = args[0];\n"
-    "if (!twitterAccessToken) {\n"
-    "  throw Error('AccessToken is required.');\n"
+ "const twitterAccessToken = args[0];\n"
+ "if (!twitterAccessToken) {\n"
+ " throw Error('AccessToken is required.');\n"
 ...
 ```
 
-The DON network operates by having its nodes execute a provided JavaScript code. In order to make the interaction between users and the Stork contract more transparent, we have [embedded the JavaScript code](/chainlink-functions/contracts/Stork.sol#L23) inside the smart contract. This allows users to easily view the code that will be executed by the DON nodes.
+The DON network operates by having its nodes execute a provided JavaScript code. To make the interaction between users and the Stork contract more transparent, we have [embedded the JavaScript code](/chainlink-functions/contracts/Stork.sol#L23) inside the smart contract. This allows users to easily view the code that will be executed by the DON nodes.
 
-## Run, deploy and test
+## Run, deploy, and test
 
 1. [Setup your environment](https://docs.chain.link/chainlink-functions/getting-started#set-up-your-environment)
-2. Deploy a `MinimalForwarder` and update forwarder contract address in [network-config](chainlink-functions/network-config.js)
+2. Deploy a `MinimalForwarder` and update the forwarder contract address in [network-config](chainlink-functions/network-config.js)
 
 ```console
 npx hardhat functions-deploy-forwarder --network mumbai
