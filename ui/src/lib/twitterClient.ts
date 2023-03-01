@@ -7,7 +7,7 @@ let client: Client | null;
 export function GetClients(): { client: Client, authClient: auth.OAuth2User } {
     authClient = new auth.OAuth2User({
         client_id: TWITTER_CLIENT_ID as string,
-        callback: window ? `${window.location.origin}/salon` : '',
+        callback: typeof window !== 'undefined' ? `${window.location.origin}/salon` : `${process.env.VERCEL_URL!}/salon`,
         scopes: ["tweet.read", "users.read"],
     });
 

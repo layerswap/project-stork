@@ -20,7 +20,7 @@ export const getServerSideProps: GetServerSideProps<{ token: string | undefined,
     let { authClient, client } = GetClients();
     const STATE = "my-state";
 
-    authClient?.generateAuthURL({
+    authClient.generateAuthURL({
         state: STATE,
         code_challenge_method: "plain",
         code_challenge: "challenge"
@@ -32,7 +32,7 @@ export const getServerSideProps: GetServerSideProps<{ token: string | undefined,
         console.log("State didn't match");
     }
     else {
-        await authClient?.requestAccessToken(code as string);
+        await authClient.requestAccessToken(code as string);
     }
 
     const token = authClient.token?.access_token;
