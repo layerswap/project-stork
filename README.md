@@ -1,6 +1,6 @@
-# Stork Alpha
+# Stork [Alpha]
 
-Leveraging Social Identity for Transacting Digital Assets
+### Leveraging Social Identity for Transacting Digital Assets
 
 Stork Alpha is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and is deployed on Polygon Mumbai.
 
@@ -10,7 +10,8 @@ The goal of Stork Alpha is to allow users to send digital assets to a Twitter ha
 
 ## Table of Contents
 
-- [Stork Alpha](#stork-alpha)
+- [Stork \[Alpha\]](#stork-alpha)
+    - [Leveraging Social Identity for Transacting Digital Assets](#leveraging-social-identity-for-transacting-digital-assets)
   - [Table of Contents](#table-of-contents)
   - [How it works?](#how-it-works)
   - [AccessToken privacy](#accesstoken-privacy)
