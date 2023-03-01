@@ -1,17 +1,16 @@
-# Stork [Alpha]
+# Stork - Alpha
 
-### Leveraging Social Identity for Transacting Digital Assets
+:rocket: Leveraging Social Identity for Transacting Digital Assets
 
 Stork Alpha is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and is deployed on Polygon Mumbai.
 
 The goal of Stork Alpha is to allow users to send digital assets to a Twitter handle. To achieve this, Stork Alpha uses Chainlink Functions to map the Twitter handle to an on-chain address.
 
-> :exclamation: Attention! Stork Alpha is a hackathon project, and its smart contracts are not audited and are not meant to run on production. Users should use Stork at their own risk.
+> :large_orange_diamond: Attention! Stork Alpha is a hackathon project, and its smart contracts are not audited and are not meant to run on production. Users should use Stork at their own risk.
 
 ## Table of Contents
 
-- [Stork \[Alpha\]](#stork-alpha)
-    - [Leveraging Social Identity for Transacting Digital Assets](#leveraging-social-identity-for-transacting-digital-assets)
+- [Stork - Alpha](#stork---alpha)
   - [Table of Contents](#table-of-contents)
   - [How it works?](#how-it-works)
   - [AccessToken privacy](#accesstoken-privacy)
@@ -19,6 +18,7 @@ The goal of Stork Alpha is to allow users to send digital assets to a Twitter ha
   - [Emmbeded JS code](#emmbeded-js-code)
   - [Conclusion](#conclusion)
   - [Contracts and Scripts](#contracts-and-scripts)
+  - [Authors](#authors)
 
 ## How it works?
 
@@ -31,14 +31,16 @@ Bob wants to send `10 MATIC` to `@elonmusk`. As we all know there is no such thi
 
 We developed a Javascript function that requires the user's Twitter access token to call the Twitter API to retrieve the Twitter handle. The code will then be sent to the [Decentralized Oracle Network (DON)](https://docs.chain.link/chainlink-functions/resources/concepts/) for independent nodes to run the same code, obtain the Twitter handle, and reach a consensus before writing it back to the Stork contract. This construct will enable trust-minimized mapping of the Twitter handle to an on-chain address, thus facilitating the successful transfer to the intended recipient.
 
-Returning to the scenario at hand, Bob aims to send `10 MATIC` to `@elonmusk.` To facilitate this transaction, Bob calls the Stork contract, providing `10 MATIC` and a Twitter handle associated with the intended recipient.
+Returning to the scenario at hand, Bob aims to send `10 MATIC` to `@elonmusk`. To facilitate this transaction, Bob calls the Stork contract, providing `10 MATIC` and a Twitter handle associated with the intended recipient.
 
+[Stork.sol#L105](chainlink-functions/contracts/Stork.sol#L105)
 ```solidity
 sendToTwitterHandle(string calldata handle) public payable
 ```
 
 To claim the assets transferred to the @elonmusk handle, @elonmusk must first prove ownership of the handle and link it to his/her on-chain address. This process involves calling the Stork contract, which verifies ownership and establishes the mapping between the handle and the on-chain address.
 
+[Stork.sol#L137](/chainlink-functions/contracts/Stork.sol#L137)
 ```solidity
 function claimTwitterHandle(
  string calldata expectedTwitterHandle,
@@ -46,10 +48,11 @@ function claimTwitterHandle(
  bool claimFundsImmediately) public
 ```
 
-Upon calling the Stork contract, the associated [Javascript code](/chainlink-functions/stork-twitter.js) is sent to the DON - nodes execute the code and write the result to the contract. Through this process, the contract verifies that the `msg.Sender` owns the @elonmusk handle and establishes the mapping between the handle and the on-chain address.
+Upon calling the Stork contract, the associated [Javascript code](/chainlink-functions/stork-twitter.js) is sent to the DON - nodes execute the code and [write the result to the contract](/chainlink-functions/contracts/Stork.sol#L75). Through this process, the contract verifies that the `msg.Sender` owns the @elonmusk handle and establishes the mapping between the handle and the on-chain address.
 
 Once this verification is complete, the user can claim the funds by calling the Stork contract.
 
+[Stork.sol#L158](/chainlink-functions/contracts/Stork.sol#L158)
 ```solidity
 function claimFunds() public
 ```
@@ -60,6 +63,7 @@ To prevent the need for multiple transactions, the `claimFundsImmediately` param
 
 ## AccessToken privacy
 
+[Stork.sol#L137](/chainlink-functions/contracts/Stork.sol#L137)
 ```solidity
 function claimTwitterHandle(
  string calldata expectedTwitterHandle,
@@ -80,6 +84,7 @@ While this solution offers improved security, it is currently not possible to im
 
 ## Expected Twitter Handle
 
+[Stork.sol#L137](/chainlink-functions/contracts/Stork.sol#L137)
 ```solidity
 function claimTwitterHandle(
  >>> string calldata expectedTwitterHandle, <<<
@@ -91,6 +96,7 @@ The claim transaction requires the user to provide the expected Twitter handle a
 
 ## Emmbeded JS code
 
+[Stork.sol#L23](/chainlink-functions/contracts/Stork.sol#L23)
 ```solidity
 ...
 string internal constant FUNCTION_CODE =
@@ -112,3 +118,7 @@ Stork is a promising project that aims to leverage social identity for transacti
 - Stork Contract [chainlink-functions/contracts/Stork.sol](/chainlink-functions/contracts/Stork.sol)
 - Stork Javascript Chainlink Function [chainlink-functions/stork-twitter.js](/chainlink-functions/stork-twitter.js)
 - Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220)
+
+## Authors
+- [Aram Kocharyan](https://twitter.com/bot_insane) (CEO at @Layerswap)
+- [Babken Gevorgyan](https://twitter.com/babgev) (CPO at @Layerswap)
