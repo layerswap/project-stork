@@ -2,11 +2,11 @@
 
 :rocket: Leveraging Social Identity for Transacting Digital Assets
 
-Stork Alpha is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and is deployed on Polygon Mumbai.
+Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and is deployed on Polygon Mumbai.
 
-The goal of Stork Alpha is to allow users to send digital assets to a Twitter handle. To achieve this, Stork Alpha uses Chainlink Functions to map the Twitter handle to an on-chain address.
+The goal of Stork is to allow users to send digital assets to a Twitter handle. To achieve this, Stork uses Chainlink Functions to map the Twitter handle to an on-chain address.
 
-> :large_orange_diamond: Attention! Stork Alpha is a hackathon project, and its smart contracts are not audited and are not meant to run on production. Users should use Stork at their own risk.
+> :large_orange_diamond: Attention! Stork is a hackathon project, and its smart contracts are not audited and are not meant to run on production. Users should use Stork at their own risk.
 
 ## Table of Contents
 
