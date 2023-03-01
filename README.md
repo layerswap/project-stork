@@ -1,71 +1,81 @@
-# Stork Alpha
+# Stork Alpha - Leveraging Twitter Social Identity for Transacting Digital Assets
 
-Stork is decentralized protocol to send crypto to Twitter accouns. Then those accounts can claim those funds, by proving that they are owner of that twitter handle.
+Stork Alpha is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and is deployed on Polygon Mumbai.
 
-The project is part of ETHDenver 2023 Hackathon. It is using newly realised Chainlink Functions for twitter identity verification.
+The goal of Stork Alpha is to allow users to send digital assets to a Twitter handle. To achieve this, Stork Alpha uses Chainlink Functions to map the Twitter handle to an on-chain address.
 
-Stark is deployed in Polygon Mumbai. 
-
-> :exclamation: Attention! Stork Smart Contracts are not audited and not ment to run on production. They were just developed in couple of days during hackathon. Use at your own risks.
+> :exclamation: Attention! Stork Alpha is a hackathon project, and its smart contracts are not audited and are not meant to run on production. Users should use Stork at their own risk.
 
 ## Overview
 
-Bob wants to send 10 Matic to @elonmusk. As we all know there is no such a thing @elonmusk in a blockchain. So in order to be able to define what is @elonmusk we need external "authority" who can map @elonmusk to onchain understandable destination, address. This is where newly released ChainLink functions come into play:
+Bob wants to send 10 Matic to @elonmusk. As we all know there is no such thing @elonmusk in a blockchain. So to be able to define what is @elonmusk we need an external "authority" who can map @elonmusk to an on-chain understandable destination, and address. This is where newly released ChainLink functions come into play:
 
 > Chainlink Functions provides your smart contracts with access to a trust-minimized compute infrastructure. Your smart contract sends your code to a Decentralized Oracle Network (DON), and each DON’s oracle runs the same code in a serverless environment. The DON aggregates all the independent runs and returns the final result to your smart contract. Your code can be anything from simple computation to fetching data from API providers. 
 > 
 > Check out [Chainlink Functions Official Documentation](https://docs.chain.link/chainlink-functions).
 
 
-In short, we will develop simple vanila javascript code which is recieving Twitter access token from user, calling Twitter API, getting the twitter handle and returning it. We will send this javascript code to [DON (Decentralized oracle network)](https://docs.chain.link/chainlink-functions/resources/concepts/) where independent nodes, will run same code, recieve the twitter handle, come to consensus and write it back to our contract. With this construct we will be able to map twitter handle to blockchain address.
+In short, we will develop a simple javascript code which is receiving a Twitter access token from the user, calls Twitter API, gets the Twitter handle, and returns it. We will send this javascript code to [DON (Decentralized oracle network)](https://docs.chain.link/chainlink-functions/resources/concepts/) where independent nodes, will run the same code, receive the Twitter handle, come to a consensus, and write it back to Stork contract. With this construct, we will be able to map the Twitter handle to the blockchain address.
 
-Back to story.  So Bob wants to send 10 MATIC to @elonmusk. Bob calls Stork contract, sends 10 MATIC and provides twitter handle.
+Back to the story. So Bob wants to send 10 MATIC to @elonmusk. Bob calls Stork contract, sends 10 MATIC, and provides a Twitter handle.
 
 ```
 sendToTwitterHandle(string calldata handle) public payable
 ```
 
-We will store the sent amount and twitter handle.
-
-Now @elonmusk wants to claim those assets. @elonmusk first have to prove that he/she owns the @elonmusk handle and link it to his/her onchain address. For this it calls Stork contract:
+Now @elonmusk wants to claim those assets. @elonmusk first has to prove that he/she owns the @elonmusk handle and then link it to his/her on-chain address. This it calls the Stork contract:
 
 ```
 function claimTwitterHandle(
-    string calldata expectedTwitterHandle,
-    string calldata accessToken,
-    bool claimFundsImmediately) public
+ string calldata expectedTwitterHandle,
+ string calldata accessToken,
+ bool claimFundsImmediately) public
 ```
 
 When this call is made, the javascript code is sent to TON and the result is written back to our Contract, so we know that `msg.Sender` owns `@elonmusk`.
 
-Once this done, user can simply claim funds (if `claimFundsImmediately` was not set to true earlier) with simple call to Stork contract:
+Once this is done, the user can simply claim funds (if `claimFundsImmediately` was not set to true earlier) with a simple call to the Stork contract:
 
 ```
 function claimFunds() public
 ```
 
-This function will check wether `msg.Sender` has associated Twitter handle, if yes it will release locked funds to it.
+This function will check whether `msg.Sender` has an associated Twitter handle, if yes it will release locked funds to it.
 
 
 ## AccessToken privacy
 
-As you can see from overview AccessToken is passed in a plain text. Which means that it is accessable to public. Access tokens are valid only for 2 hours and are providing only read-only access, but in anycase this is heavlity exposing privacy. So we propose following schema, where the access token is not transmited in unecrypted way:
+```
+function claimTwitterHandle(
+ string calldata expectedTwitterHandle,
+ string calldata accessToken,
+ bool claimFundsImmediately) public
+```
 
-1. Stork generates RSA Public/Private Key. Private Key is shared beetwin DON nodes with [Offchain Secrets](https://docs.chain.link/chainlink-functions/tutorials/api-use-secrets-offchain)
-2. Public Key is publicaly shared.
-3. Whenever use wants to interact with Stork Contract, they has to encrypt the access token with Public Key and then sent it over network.
-4. Chainlink javascript function will recieve encrypted acces token as well as will recieve offchain secret Private key, which will allow to descrypt access token and call Twitter.
+As you can see is user's Access token is passed in plain text. Which means that it is accessible to the public. Access tokens are valid only for 2 hours and are providing read-only access, but in any case, this is heavily exposing users' privacy. To address this issue, we propose the following schema, where the access token is not transmitted in an unencrypted way:
 
-This is not possible to implement yet, because Chainlink functions are in Beta and they just support javascript vanila functions. Once they implement basic crypto libraries, this solution can be implemented.
+1. Stork generates Public/Private keys. Private Key is shared between DON nodes with [Offchain Secrets](https://docs.chain.link/chainlink-functions/tutorials/api-use-secrets-offchain)
+2. Public Key is publicly shared.
+3. Whenever a user wants to interact with Stork Contract, they have to encrypt the access token with Public Key and then sent it over the network.
+4. Chainlink javascript function will receive an encrypted access token as well as will receive off-chain secret Private key, which will allow to decrypt of the access token and call Twitter.
+
+This is not possible to implement yet, because Chainlink functions are in Beta and only vanilla javascript functions are supported. Once basic crypto functionality is added, this solution can be implemented.
 
 ## Expected Twitter Handle
 
 ```
 function claimTwitterHandle(
-    string calldata expectedTwitterHandle,
-    string calldata accessToken,
-    bool claimFundsImmediately) public
+ string calldata expectedTwitterHandle,
+ string calldata accessToken,
+ bool claimFundsImmediately) public
 ```
+
+## Emmbeding JS code in Smart Contract
+DON nodes receive a source code of JS to run. Even tho it was not documented, we thought that it should be nice to embed JS inside a smart contract. In a perfect world users who want to interact with the Stork contract, can easily see (what is the JS code)[/chainlink-functions/contracts/Stork.sol#L23] that DON nodes are going to execute.
+
+## Conclusion
+
+Stork is a promising project that aims to leverage social identity for transacting digital assets. While it is not ready for production use, it provides a solid foundation for further development and exploration of the use of Chainlink Functions for on-chain identity verification. The project code can be found on the links provided below.
 
 ## Contract/Scripts links
 
