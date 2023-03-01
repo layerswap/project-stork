@@ -2,7 +2,7 @@
 
 :rocket: Leveraging Social Identity for Transacting Digital Assets
 
-Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and is deployed on Polygon Mumbai.
+Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and is [deployed on Polygon Mumbai](https://mumbai.polygonscan.com/address/0x15f9b27af099d9eebd8a2f47f674a0bc03b68890).
 
 The goal of Stork is to allow users to send digital assets to a Twitter handle. To achieve this, Stork uses Chainlink Functions to map the Twitter handle to an on-chain address.
 
