@@ -6,7 +6,7 @@ Stork is a project developed during the ETHDenver 2023 Hackathon that aims to en
 
 Stork's objective is to enable users to send digital assets to a Twitter handle that can be claimed by the owner of that handle in a trustless and non-custodial manner. This is accomplished through the use of Chainlink Functions, which map the Twitter handle to an on-chain address.
 
-> :large_orange_diamond: Attention! Stork is a hackathon project, and its smart contracts are not audited and are not meant to run on production. Users should use Stork at their own risk.
+>:warning: It is important to note that Stork is a project developed during a hackathon, where the main objective was to rapidly create a working product. Hence, the smart contracts used in the project have not been audited and are not intended for deployment in production environments.
 
 ## Table of Contents
 
