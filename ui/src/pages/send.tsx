@@ -8,8 +8,12 @@ import { STORK_CONTRACT_ADDRESS } from '@/lib/constants';
 import Navbar from '@/components/navbar';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import MotionCharacter from '@/components/motionCharacter';
+import InformationCard from '@/components/informationCard';
+import TweetPrompt from '@/components/tweetPrompt';
+import { useRouter } from 'next/router';
 
 export default function Send() {
+    const router = useRouter();
     const [handle, setHandle] = useState<string>();
     const [amount, setAmount] = useState<string>();
     const [handleChanged, setHandleChanged] = useState<boolean>();
@@ -36,6 +40,9 @@ export default function Send() {
     const { data: writeData, write, error: writeError, isError: isWriteError, isLoading: isWriteLoading } = useContractWrite(config)
     const { isLoading: isTransactionPending, isSuccess, data } = useWaitForTransaction({
         hash: writeData?.hash,
+        onSuccess: (d) => {
+            router.push(`/sent?txId=${d.transactionHash}&handle=${handle}&amount=${amount}`);
+        }
     });
 
     return (
@@ -60,7 +67,6 @@ export default function Send() {
                             {handleChanged && <span>to @{handle}</span>}
                         </motion.h2>
                     </div>
-
                     <div className="max-w-xs mx-auto mt-10 overflow-hidden bg-white shadow rounded-xl">
                         <div className="p-6 sm:p-8">
                             <form onSubmit={(e) => {
@@ -73,7 +79,11 @@ export default function Send() {
                                             To:
                                         </label>
 
-                                        <input onBlur={() => setHandleChanged(true)} onChange={e => setHandle(e.target.value)} type="text" name="handle" id="handle" placeholder="@username" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
+                                        <input value={handle} onBlur={(e) => setHandleChanged(Boolean(e.target.value))} onChange={e => {
+                                            let value = e.target.value;
+                                            value = value.replace('@', '');
+                                            setHandle(value);
+                                        }} type="text" name="handle" id="handle" placeholder="@username" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
                                     </div>
 
                                     <div className="flex flex-col">
@@ -86,7 +96,7 @@ export default function Send() {
                                             <div className="absolute inset-y-0 text-base font-medium right-0 flex items-center pr-4 text-gray-400 rounded-r-lg pointer-events-none sm:text-sm">MATIC</div>
                                         </div>
                                     </div>
-                                    <button type='submit' disabled={!Boolean(handle) || !Boolean(amount)} onClick={(e) => {
+                                    <button type='submit' disabled={!Boolean(handle) || !Boolean(amount) || isWriteLoading || isTransactionPending} onClick={(e) => {
                                         if (!isConnected) {
                                             e.preventDefault();
                                             open?.();
@@ -94,12 +104,28 @@ export default function Send() {
                                     }}
                                         className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 bg-gray-900 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-700 disabled:hover:bg-slate-700 disabled:bg-slate-700"
                                     >{!Boolean(handle) ? 'Enter handle' : (!Boolean(amount) ? 'Enter amount' : (!isConnected ? 'Connect wallet' : 'Send'))}</button>
-                                    {(isPrepareError || isWriteError) && (
-                                        <div className='text-red-500'>WriteError: {(prepareError || writeError)?.message}</div>
-                                    )}
                                 </div>
                             </form>
                         </div>
+                    </div>
+
+                    <div className='max-w-xs mx-auto mt-5 overflow-hidden bg-white shadow rounded-xl'>
+                        {(isWriteLoading || isTransactionPending) &&
+                            <InformationCard isLoading={true} text={isWriteLoading ? 'Confirm transaction with your wallet' : (isTransactionPending ? 'Transaction in progress' : '')} type='wallet' />
+                        }
+                        {(isPrepareError || isWriteError) && (
+                            <InformationCard isLoading={false} text={(prepareError || writeError)?.message} type='error' />
+                        )}
+                        {isSuccess && (
+                            <InformationCard isLoading={false} text={
+                                <span>
+                                    Successfully sent!&nbsp;
+                                    <span>
+                                        <a className='underline hover:underline-offset-4' href={`${polygonMumbai.blockExplorers.etherscan.url}/tx/${writeData?.hash}`}>View in Explorer</a>
+                                    </span>
+                                </span>
+                            } type='wallet' />
+                        )}
                     </div>
                 </div>
             </section>
@@ -120,9 +146,6 @@ export default function Send() {
         //             }}>{!Boolean(handle) ? 'Enter handle' : (!Boolean(amount) ? 'Enter amount' : (!isConnected ? 'Connect wallet' : 'Send'))}</button>
         //         </form>
         //         <Web3Button icon="show" label="Connect Wallet" balance="show" />
-        //         {(isPrepareError || isWriteError) && (
-        //             <div>WriteError: {(prepareError || writeError)?.message}</div>
-        //         )}
         //     </div>
         //     <p hidden={!isWriteLoading}>Send in progress</p>
         //     <p hidden={!isTransactionPending}>Transaction publishing</p>

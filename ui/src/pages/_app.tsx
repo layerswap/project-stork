@@ -13,7 +13,7 @@ const projectId = WALLET_CONNECT_PROJECT_ID
 // 2. Configure wagmi client
 const chains = [polygonMumbai]
 
-const { provider } = configureChains(chains, [alchemyProvider({apiKey: ALCHEMY_API_KEY, priority: 0})])
+const { provider } = configureChains(chains, [walletConnectProvider({projectId: projectId}), alchemyProvider({apiKey: ALCHEMY_API_KEY, priority: 0})])
 const wagmiClient = createClient({
   autoConnect: true,
   connectors: modalConnectors({ version: '1', appName: 'web3Modal', chains, projectId }),
