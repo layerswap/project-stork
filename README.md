@@ -82,7 +82,9 @@ This is how the process will look like with meta transactions:
 5. Stork contract will call the DON network ... and do the rest as explained above
 ...
 
-It is apparent that the Stork contract calls that involve DON interactions are called from Relayer and routed through the `MinimalForwarder`. As a result, we can request Chainlink to whitelist the `Relayer` address to enable its use for all users.
+Notice that Stork contract calls that involve DON interactions are called from Relayer and routed through the `MinimalForwarder`. As a result, we can request Chainlink to whitelist the `Relayer` address to enable its use for all users.
+
+Currently, the Relayer covers the cost of gas fees for transactions. However, it is fairly easy to deduct these fees from the user who claims the funds and automatically transfer them to the Relayer.
 
 ## AccessToken privacy
 
