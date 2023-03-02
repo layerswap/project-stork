@@ -31,6 +31,8 @@ if (!PRIVATE_KEY) {
   throw Error("Set the PRIVATE_KEY environment variable with your EVM wallet private key")
 }
 
+const PRIVATE_KEY_2 = process.env.PRIVATE_KEY_2
+
 // Set a specific bock number to fork (optional)
 const FORKING_BLOCK_NUMBER = isNaN(process.env.FORKING_BLOCK_NUMBER)
   ? undefined
@@ -108,7 +110,7 @@ module.exports = {
     },
     mumbai: {
       url: MUMBAI_RPC_URL ?? "UNSET",
-      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
+      accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY, PRIVATE_KEY_2] : [],
     },
     sepolia: {
       url: SEPOLIA_RPC_URL || "UNSET",

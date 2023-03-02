@@ -1,6 +1,7 @@
 const { getDecodedResultLog, getRequestConfig } = require("../../FunctionsSandboxLibrary")
 const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
+const { signMetaTxRequest } = require("./../signer")
 const readline = require("readline-promise").default
 
 task("functions-request", "Initiates a request from an Functions client contract")
@@ -369,5 +370,61 @@ task("functions-request", "Initiates a request from an Functions client contract
       const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
       requestId = requestTxReceipt.events[2].args.id
       console.log(`\nRequest ${requestId} initiated`)
+    })
+  })
+
+  task("stork-forwarder-request", "Initiates a request from an Functions client contract")
+  .addParam("contract", "Address of the Stork contract to call")
+  .addParam("accesstoken", "Twitter oAuth Access token")
+  .addParam("twitterhandle", "Expected Twitter handle")
+  .addOptionalParam(
+    "claimfunds",
+    "Flag indicating if funds should be claimed as well",
+    true,
+    types.boolean
+  )
+  .setAction(async (taskArgs, hre) => {
+    if (network.name === "hardhat") {
+      throw Error(
+        'This command cannot be used on a local development chain.  Specify a valid network or simulate an Functions request locally with "npx hardhat functions-simulate".'
+      )
+    }
+
+    // Get the required parameters
+    const contractAddr = taskArgs.contract
+    const accessToken = taskArgs.accesstoken
+    const expectedTwitterHandle = taskArgs.twitterhandle
+    const claimFundsImmediately = taskArgs.claimfunds
+
+    // Attach to the required contracts
+    const clientContractFactory = await ethers.getContractFactory("Stork")
+    const clientContract = clientContractFactory.attach(contractAddr)
+    const forwarderContractFactory = await ethers.getContractFactory("MinimalForwarder")
+    const forwarderContract = forwarderContractFactory.attach(networkConfig[network.name]["forwarder"])
+
+    // Use a promise to wait & listen for the fulfillment event before returning
+    await new Promise(async (resolve, reject) => {
+      
+      const accounts = await ethers.getSigners();
+      const signer = accounts[1];
+
+      console.log(`\nPreparing meta transaction request.`)
+      const { request, signature } = await signMetaTxRequest(signer.provider, forwarderContract, {
+        from: signer.address,
+        to: clientContract.address,
+        data: clientContract.interface.encodeFunctionData('claimTwitterHandle', [expectedTwitterHandle, accessToken, claimFundsImmediately]),
+      });
+
+      const overrides = {
+        gasLimit: 1500000,
+      }
+      const requestTx = await forwarderContract.execute(request, signature, overrides);
+
+      console.log(
+        `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`
+      )
+
+      const requestTxReceipt = await requestTx.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
+      console.log(`\Transaction ${requestTxReceipt.Hash} succesffully published.`)
     })
   })
