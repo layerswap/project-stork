@@ -95,7 +95,7 @@ export default function Send() {
                                         className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 bg-gray-900 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-700 disabled:hover:bg-slate-700 disabled:bg-slate-700"
                                     >{!Boolean(handle) ? 'Enter handle' : (!Boolean(amount) ? 'Enter amount' : (!isConnected ? 'Connect wallet' : 'Send'))}</button>
                                     {(isPrepareError || isWriteError) && (
-                                        <div>WriteError: {(prepareError || writeError)?.message}</div>
+                                        <div className='text-red-500'>WriteError: {(prepareError || writeError)?.message}</div>
                                     )}
                                 </div>
                             </form>
