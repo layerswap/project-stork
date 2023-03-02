@@ -40,7 +40,7 @@ Returning to the scenario at hand, Bob aims to send `10 MATIC` to `@elonmusk`. T
 sendToTwitterHandle(string calldata handle) public payable
 ```
 
-To claim the assets transferred to the @elonmusk handle, @elonmusk must first prove ownership of the handle and link it to his/her on-chain address. This process involves calling the Stork contract, which verifies ownership and establishes the mapping between the handle and the on-chain address.
+To claim the assets transferred to the `@elonmusk` handle, `@elonmusk` must first prove ownership of the handle and link it to his/her on-chain address. This process involves calling the Stork contract, which verifies ownership and establishes the mapping between the handle and the on-chain address.
 
 [Stork.sol#L137](/chainlink-functions/contracts/Stork.sol#L137)
 ```solidity
@@ -50,7 +50,7 @@ function claimTwitterHandle(
  bool claimFundsImmediately) public
 ```
 
-Upon calling the Stork contract, the associated [Javascript code](/chainlink-functions/stork-twitter.js) is sent to the DON - nodes execute the code and [write the result to the contract](/chainlink-functions/contracts/Stork.sol#L75). Through this process, the contract verifies that the `msg.Sender` owns the @elonmusk handle and establishes the mapping between the handle and the on-chain address.
+Upon calling the Stork contract, the associated [Javascript code](/chainlink-functions/stork-twitter.js) is sent to the DON - nodes execute the code and [write the result to the contract](/chainlink-functions/contracts/Stork.sol#L75). Through this process, the contract verifies that the `msg.Sender` owns the `@elonmusk` handle and establishes the mapping between the handle and the on-chain address.
 
 Once this verification is complete, the user can claim the funds by calling the Stork contract.
 
