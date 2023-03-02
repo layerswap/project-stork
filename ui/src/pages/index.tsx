@@ -2,6 +2,7 @@ import { GetClients } from "../lib/twitterClient";
 import { Web3Button } from '@web3modal/react';
 import { useRouter } from "next/router";
 import { useState } from "react";
+import Navbar from "@/components/navbar";
 
 function getTwitterOauthUrl() {
   let { authClient } = GetClients();
@@ -23,26 +24,11 @@ export default function Home() {
 
   return (
     <>
-
+      <Navbar />
       <div className="relative bg-gray-50">
         <div className="absolute bottom-0 right-0 overflow-hidden lg:inset-y-0">
           <img className="w-auto h-full" src="https://d33wubrfki0l68.cloudfront.net/1e0fc04f38f5896d10ff66824a62e466839567f8/699b5/images/hero/3/background-pattern.png" alt="" />
         </div>
-
-        <header className="relative py-4 md:py-6">
-          <div className="container px-4 mx-auto sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
-              <div className="flex-shrink-0">
-                <a href="#" title="" className="flex">
-                  <p className="w-auto h-8 font-extrabold text-3xl">Stork</p>
-                </a>
-              </div>
-              <div className="ml-auto flex items-center">
-                <Web3Button icon="show" label="Connect Wallet" balance="show" />
-              </div>
-            </div>
-          </div>
-        </header>
 
         <section className="relative py-12 sm:py-16 lg:py-20 lg:pb-36">
           <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
