@@ -11,14 +11,20 @@ import MotionCharacter from '@/components/motionCharacter';
 import InformationCard from '@/components/informationCard';
 import TweetPrompt from '@/components/tweetPrompt';
 import { useRouter } from 'next/router';
+import FlipNumbers from 'react-flip-numbers';
+import { ArrowUpDown } from 'lucide-react';
+import { useUSDprice } from '@/lib/hooks/usePrice';
 
 export default function Send() {
     const router = useRouter();
     const [handle, setHandle] = useState<string>();
     const [amount, setAmount] = useState<number>();
     const [handleChanged, setHandleChanged] = useState<boolean>();
-
+    const [amountIsInUSD, setAmountInUSD] = useState<boolean>();
+    const usdPriceData = useUSDprice('MATIC');
     const { handle: handleQuery } = router.query;
+    const [amountChangedAfterConv, setAmountChangedAfterConf] = useState<boolean>(false);
+    const [amountBeforeConv, setAmountBeforeConf] = useState<number>();
 
     useEffect(() => {
         if (Boolean(handleQuery) && typeof handleQuery == 'string') {
@@ -40,9 +46,9 @@ export default function Send() {
         abi: storkABI,
         functionName: 'sendToTwitterHandle',
         args: [handle!],
-        enabled: Boolean(handle) && isConnected && amount != undefined && amount > 0,
+        enabled: Boolean(handle) && isConnected && amount != undefined && !isNaN(amount) && amount > 0,
         overrides: {
-            value: amount?.toString() != undefined ? ethers.utils.parseEther(amount?.toString()) : BigNumber.from(0),
+            value: amount != undefined && !isNaN(amount) && amount > 0 ? ethers.utils.parseEther((amountIsInUSD ? usdToAsset(amount, usdPriceData.price) : amount)?.toString()) : BigNumber.from(0),
             gasLimit: BigNumber.from(1500000)
         }
     });
@@ -61,21 +67,19 @@ export default function Send() {
             <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
                 <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
                     <div className="text-center">
-                        <motion.h2 layout transition={{
-                            type: "spring",
-                            stiffness: 350,
-                            damping: 25,
-                        }} className="text-3xl font-bold text-gray-900">
-                            Send
-                            {amount != undefined && amount > 0 && <span>&nbsp;
-                                {
-                                    amount?.toString().split('').map((item, index) => <MotionCharacter key={index.toString()} text={item} />)}
-                            </span>
-                            }
-                            <span>&nbsp;$MATIC</span>
-                            <br />
-                            {handleChanged && <span>to @{handle}</span>}
-                        </motion.h2>
+                        <motion.div layout
+                            transition={{
+                                layout: { type: 'spring', duration: 0.6 }
+                            }} className="text-3xl font-bold text-slate-600 flex flex-col items-center justify-center">
+                            <div className='flex items-center'>
+                                <span className='font-semibold'>Send&nbsp;</span>
+                                {amount != undefined && amount > 0 &&
+                                    <FlipNumbers height={28} width={18} color="black" duration={1} background="white" play numbers={amount.toString()} />
+                                }
+                                <span className='font-semibold'>{amount != undefined && amount > 0 && <span>&#20;</span>}{amountIsInUSD ? 'USD' : 'MATIC'}</span>
+                            </div>
+                            <div className={handleChanged ? 'inline' : 'hidden'}><span className='font-semibold'>to&nbsp;</span><span className='text-black'>@{handle}</span></div>
+                        </motion.div>
                     </div>
                     <div className="max-w-xs mx-auto mt-10 overflow-hidden bg-white shadow rounded-xl">
                         <div className="p-6 sm:p-8">
@@ -91,15 +95,47 @@ export default function Send() {
                                         </label>
 
                                         <div className="relative flex">
-                                            <input step="0.000000001" onChange={e => {
-                                                let parsedValue = Number.parseFloat(e.target.value);
-                                                if (isNaN(parsedValue) || parsedValue < 0) {
-                                                    parsedValue = 0;
-                                                }
+                                            <input maxLength={5} step="0.0001" value={amount}
+                                                onChange={e => {
+                                                    let amountString = e.target.value;
+                                                    let parsedValue = Number.parseFloat(amountString);
+                                                    parsedValue = Number.parseFloat(parsedValue.toPrecision(4));
 
-                                                setAmount(parsedValue)
-                                            }} type="number" name="amount" id="amount" placeholder="4.20" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
-                                            <div className="absolute inset-y-0 text-base font-medium right-0 flex items-center pr-4 text-gray-400 rounded-r-lg pointer-events-none sm:text-sm">MATIC</div>
+                                                    setAmount(parsedValue)
+                                                    setAmountChangedAfterConf(false);
+                                                }} type="number" name="amount" id="amount" placeholder="4.20" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-l-lg ring-inset focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
+                                            <motion.button
+                                                layout
+                                                transition={{
+                                                    duration: 0.1
+                                                }}
+                                                onClick={() => {
+                                                    setAmountBeforeConf(amount);
+
+                                                    if (!amountChangedAfterConv && amountBeforeConv != undefined && amountBeforeConv > 0) {
+                                                        setAmount(amountBeforeConv);
+                                                    }
+                                                    else {
+                                                        if (amount && usdPriceData?.price) {
+                                                            if (amountIsInUSD) {
+                                                                setAmount(usdToAsset(amount, usdPriceData.price))
+                                                            }
+                                                            else {
+                                                                setAmount(assetToUsd(amount, usdPriceData.price))
+                                                            }
+                                                        }
+
+                                                    }
+
+                                                    setAmountInUSD(!amountIsInUSD);
+                                                    setAmountChangedAfterConf(false);
+                                                }}
+                                                type="button"
+                                                className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-lg px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                                            >
+                                                <ArrowUpDown height={18} width={18} />
+                                                {amountIsInUSD ? 'USD' : 'MATIC'}
+                                            </motion.button>
                                         </div>
                                     </div>
                                     <div className="flex flex-col">
@@ -176,4 +212,12 @@ export default function Send() {
         //     )}
         // </>
     )
+}
+
+function assetToUsd(amount: number, usdPrice: number) {
+    return Number.parseFloat((Number.parseFloat(amount.toPrecision(4)) / usdPrice).toFixed(4));
+}
+
+function usdToAsset(amount: number, usdPrice: number) {
+    return Number.parseFloat((Number.parseFloat(amount.toPrecision(4)) * usdPrice).toFixed(4));
 }
