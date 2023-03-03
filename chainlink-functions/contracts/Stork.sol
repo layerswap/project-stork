@@ -21,7 +21,7 @@ contract Stork is FunctionsClient, ConfirmedOwner, ERC2771Context {
   mapping(address => string) public addressTwitterHandles;
 
   uint64 internal constant SUBSCRIPTION_ID = 159;
-  uint32 internal constant GAS_LIMIT = 200000;
+  uint32 internal constant GAS_LIMIT = 300000;
   string internal constant FUNCTION_CODE =
     "const twitterAccessToken = args[0];\n"
     "if (!twitterAccessToken) {\n"

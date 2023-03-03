@@ -402,13 +402,37 @@ task("functions-request", "Initiates a request from an Functions client contract
     const forwarderContractFactory = await ethers.getContractFactory("MinimalForwarder")
     const forwarderContract = forwarderContractFactory.attach(networkConfig[network.name]["forwarder"])
 
+    const OracleFactory = await ethers.getContractFactory("contracts/dev/functions/FunctionsOracle.sol:FunctionsOracle")
+    const oracle = await OracleFactory.attach(networkConfig[network.name]["functionsOracleProxy"])
+    const registryAddress = await oracle.getRegistry()
+    const RegistryFactory = await ethers.getContractFactory(
+      "contracts/dev/functions/FunctionsBillingRegistry.sol:FunctionsBillingRegistry"
+    )
+    const registry = await RegistryFactory.attach(registryAddress)
+
     // Use a promise to wait & listen for the fulfillment event before returning
     await new Promise(async (resolve, reject) => {
-      
+      let requestId
+
+      // Initiate the listeners before making the request
+      // Listen for fulfillment errors
+      oracle.on("UserCallbackError", async (eventRequestId, msg) => {
+        if (requestId == eventRequestId) {
+          console.log("Error in client contract callback function")
+          console.log(msg)
+        }
+      })
+      oracle.on("UserCallbackRawError", async (eventRequestId, msg) => {
+        if (requestId == eventRequestId) {
+          console.log("Raw error in client contract callback function")
+          console.log(Buffer.from(msg, "hex").toString())
+        }
+      })
+
       const accounts = await ethers.getSigners();
       const signer = accounts[1];
 
-      console.log(`\nPreparing meta transaction request.`)
+      console.log(`\nPreparing meta transaction request for ${signer.address}.`)
       const { request, signature } = await signMetaTxRequest(signer.provider, forwarderContract, {
         from: signer.address,
         to: clientContract.address,
@@ -416,9 +440,18 @@ task("functions-request", "Initiates a request from an Functions client contract
       });
 
       const overrides = {
-        gasLimit: 1500000,
+        gasLimit: 10000000,
       }
       const requestTx = await forwarderContract.execute(request, signature, overrides);
+      
+      // If a response is not received within 5 minutes, the request has failed
+      setTimeout(
+        () =>
+          reject(
+            "A response not received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
+          ),
+        300_000
+            )
 
       console.log(
         `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`
