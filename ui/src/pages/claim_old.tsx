@@ -2,12 +2,10 @@ import { Web3Button } from '@web3modal/react';
 import { useContractRead, useAccount, usePrepareContractWrite, useContractWrite, useWaitForTransaction, useContract, useSigner } from 'wagmi';
 import { forwarderAbi, storkABI } from '@/lib/ABIs/Stork';
 import { polygonMumbai } from 'wagmi/chains';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import { DEFENDER_URL, STORK_CONTRACT_ADDRESS, STORK_FORWARDER_CONTRACT_ADDRESS } from '@/lib/constants';
 import { useSignTypedData } from 'wagmi'
 import Navbar from '@/components/navbar';
-import { useUSDprice } from '@/lib/hooks/usePrice';
-import InformationCard from '@/components/informationCard';
 
 const types = {
     ForwardRequest: [
@@ -20,14 +18,11 @@ const types = {
     ],
 } as const
 
-export default function Claim1() {
-    let { price: maticPrice } = useUSDprice('MATIC');
+export default function ClaimOld() {
     let userData = JSON.parse(window.localStorage.getItem("USER_CRED") || "") as { token: string, userName: string, profile_image_url: string | undefined };
 
     const { isConnected, address } = useAccount()
     const { data: balance, error: readBalanceError, isError: isReadBalanceError } = useReadBalance(userData?.userName);
-    const balanceInEth = ethers.utils.formatEther(balance?.toString()!);
-    const balanceInUsd = Number.parseFloat(balanceInEth) * maticPrice;
 
     const contract = useContract({
         abi: storkABI,
@@ -93,7 +88,6 @@ export default function Claim1() {
         config: prepareClaimFundsConfig,
         error: prepareClaimFundsError,
         isError: isPrepareClaimFundsError,
-        isLoading: isPrepareClaimFundsLoading
     } = usePrepareContractWrite({
         address: STORK_CONTRACT_ADDRESS,
         abi: storkABI,
@@ -105,7 +99,7 @@ export default function Claim1() {
         }
     });
 
-    const { data: writeClaimFundsData, write: writeClaimFunds, error: writeClaimFundsError, isError: isWriteClaimFundsError, isLoading: isWriteClaimFundsLoading } = useContractWrite(prepareClaimFundsConfig)
+    const { data: writeClaimFundsData, write: writeClaimFunds, error: writeClaimFundsError, isError: isWriteClaimFundsError } = useContractWrite(prepareClaimFundsConfig)
     const { isLoading: isClaimFundsLoading, isSuccess: isClaimFundsSuccess } = useWaitForTransaction({
         hash: writeClaimFundsData?.hash,
     });
@@ -114,8 +108,7 @@ export default function Claim1() {
     const {
         config: prepareClaimHandleConfig,
         error: prepareClaimHandleError,
-        isError: isPrepareClaimHandleError,
-        isLoading: isPrepareClaimHandleLoading
+        isError: isPrepareClaimHandleError
     } = usePrepareContractWrite({
         address: STORK_CONTRACT_ADDRESS,
         abi: storkABI,
@@ -128,86 +121,99 @@ export default function Claim1() {
         }
     });
 
-    const { data: writeClaimHandleData, write: writeClaimHandle, error: writeClaimHandleError, isError: isWriteClaimHandleError, isLoading: isWriteClaimHandleLoading } = useContractWrite(prepareClaimHandleConfig)
+    const { data: writeClaimHandleData, write: writeClaimHandle, error: writeClaimHandleError, isError: isWriteClaimHandleError } = useContractWrite(prepareClaimHandleConfig)
     const { isLoading: isClaimHandleLoading, isSuccess: isClaimHandleSuccess } = useWaitForTransaction({
         hash: writeClaimHandleData?.hash,
     });
 
-
     let isClaimSuccess = (isClaimHandleSuccess || isClaimFundsSuccess);
-    let isWriteClaimLoading = (isWriteClaimFundsLoading || isWriteClaimHandleLoading);
-    let isPrepareClaimLoading = (isPrepareClaimHandleLoading || isPrepareClaimFundsLoading);
+    let isClaimLoading = (isClaimHandleLoading || isClaimFundsLoading);
     let claimTxHash = writeClaimHandleData?.hash || writeClaimFundsData?.hash;
     let isClaimError = isPrepareClaimHandleError || isWriteClaimHandleError || isPrepareClaimFundsError || isWriteClaimFundsError;
     let claimError = prepareClaimHandleError || writeClaimHandleError || prepareClaimFundsError || writeClaimFundsError;
-    let canClaim = (Boolean(writeClaimFunds) || Boolean(writeClaimHandle)) && !isWriteClaimLoading && balance?.gt(0);
+    let canClaim = (Boolean(writeClaimFunds) || Boolean(writeClaimHandle)) && !isClaimLoading && balance?.gt(0);
 
     return (
+        // <>
+        //     <Navbar />
+        //     <section className="py-12 sm:py-16 lg:pb-20">
+        //         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        //             <div className="grid grid-cols-3 gap-5 mx-auto sm:max-w-md">
+        //                 <div></div>
+        //                 <img className="transform -rotate-2 rounded-xl" src="https://landingfoliocom.imgix.net/store/collection/niftyui/images/hero-coming-soon/1/image-2.png" alt="" />
+        //                 <div></div>
+        //             </div>
+
+        //             <div className="max-w-md mx-auto mt-8 text-center">
+        //                 <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl">{`Hey there ${userData.userName}`}</h1>
+        //                 <p className="mt-4 text-base font-medium text-gray-500 lg:text-lg">Welcome to your Stork account.</p>
+        //             </div>
+
+        //             <div className="max-w-sm mx-auto mt-10 overflow-hidden text-center bg-gray-900 rounded-xl">
+        //                 <div className="p-6">
+        //                     <p className="mt-4 text-base font-medium text-gray-500 lg:text-lg">You've received a total of:</p>
+
+        //                     <div className="flex items-center justify-center px-1 space-x-3 lg:space-x-6">
+        //                         <div>
+        //                             <p className="text-4xl font-bold text-white">{balance?.toNumber()}</p>
+        //                             <p className="mt-1 text-sm font-medium text-gray-400">Matic</p>
+        //                         </div>
+        //                     </div>
+
+        //                     <div className="mt-5">
+        //                         <a
+        //                             href="#"
+        //                             title=""
+        //                             className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 border border-transparent rounded-lg bg-rose-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-600 hover:bg-rose-600"
+        //                             role="button"
+        //                         >
+        //                             Join Discord
+        //                         </a>
+        //                     </div>
+        //                 </div>
+        //             </div>
+        //         </div>
+        //     </section>
+        // </>
         <>
-            <Navbar />
-            <section className="py-12 sm:py-16 lg:pb-20">
-                <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="max-w-md mx-auto mt-8 text-center">
-                        <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl">
-                            <span>Hey 👋 </span>
-                            <span> @{userData.userName}</span>
-                        </h1>
-                        <p className="mt-4 text-base font-medium text-gray-500 lg:text-lg">Welcome to Stork</p>
-                    </div>
-                    {
-                        balance &&
-                        <div className="max-w-sm mx-auto mt-10 overflow-hidden text-center bg-gray-900 rounded-xl">
-                            <div className="p-6">
-                                <p className="mt-4 text-base font-medium text-gray-500 lg:text-lg">You've received a total of:</p>
-
-                                <div className="flex items-center justify-center px-1 space-x-3 lg:space-x-6">
-                                    <div>
-                                        <p className="text-4xl font-bold text-white">{balanceInEth} MATIC</p>
-                                        <p className="mt-1 text-xl font-medium text-gray-400">${balanceInUsd}</p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-5">
-                                    <button
-                                        disabled={!canClaim}
-                                        className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 border border-transparent rounded-lg bg-rose-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-600 hover:bg-rose-600"
-                                        onClick={() => {
-                                            signTypedData?.();
-                                            // if (handleOfAddressData !== userData?.userName) {
-                                            //     writeClaimHandle?.();
-                                            // }
-                                            // else {
-                                            //     writeClaimFunds?.();
-                                            // }
-                                        }}>
-                                        {isWriteClaimLoading ? 'Claiming' : isConnected ? 'Claim' : 'Connect a wallet to claim'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </section>
-            <div className='max-w-sm mx-auto mt-5 overflow-hidden bg-white shadow rounded-xl'>
-                {(isWriteClaimLoading || isPrepareClaimLoading) &&
-                    <InformationCard isLoading={true} text={isPrepareClaimLoading ? 'Confirm transaction with your wallet' : (isWriteClaimLoading ? 'Transaction in progress' : '')} type='wallet' />
+            <div>
+                <p>  Yo {userData.userName} token is {userData.token};</p>
+                {readBalanceError &&
+                    `Couldn't fetch balance because of ${readBalanceError}`
                 }
-                {(isClaimError) && (
-                    <InformationCard isLoading={false} text={(claimError)?.message} type='error' />
-                )}
-                {isReadBalanceError &&
-                    <InformationCard isLoading={false} text={(readBalanceError)?.message} type='error' />
+                <p>{!handleOfAddressData || handleOfAddressData == '' ? "Address not connected to twitter" : ''}</p>
+                {balance &&
+                    `Your balance is ${balance}`
+                }
+                {!isConnected &&
+                    <p>Connect wallet to claim your balance.</p>
+                }
+                {Boolean(handleOfAddressData) && handleOfAddressData !== userData?.userName &&
+                    <p>{`Address was connected to another handle (${handleOfAddressData}) by continuing you'll connect this address to the new handle.`}</p>
+                }
+                {isConnected &&
+                    <button onClick={() => {
+                        signTypedData?.();
+                        // if (handleOfAddressData !== userData?.userName) {
+                        //     writeClaimHandle?.();
+                        // }
+                        // else {
+                        //     writeClaimFunds?.();
+                        // }
+                    }}>{isClaimLoading ? 'Claiming...' : 'Claim'}</button>
                 }
                 {isClaimSuccess && (
-                    <InformationCard isLoading={false} text={
-                        <span>
-                            Successfully claimed!&nbsp;
-                            <span>
-                                <a className='underline hover:underline-offset-4' href={`${polygonMumbai.blockExplorers.etherscan.url}/tx/${claimTxHash}`}>View in Explorer</a>
-                            </span>
-                        </span>
-                    } type='wallet' />
+                    <div>
+                        Successfully claimed!
+                        <div>
+                            <a href={`${polygonMumbai.blockExplorers.etherscan.url}/tx/${claimTxHash}`}>Explorer</a>
+                        </div>
+                    </div>
                 )}
+                {isClaimError && (
+                    <div>WriteError: {claimError?.message}</div>
+                )}
+                <Web3Button icon="show" label="Connect Wallet" balance="show" />
             </div>
         </>
     )

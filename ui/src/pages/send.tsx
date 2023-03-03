@@ -15,8 +15,18 @@ import { useRouter } from 'next/router';
 export default function Send() {
     const router = useRouter();
     const [handle, setHandle] = useState<string>();
-    const [amount, setAmount] = useState<string>();
+    const [amount, setAmount] = useState<number>();
     const [handleChanged, setHandleChanged] = useState<boolean>();
+
+    const { handle: handleQuery } = router.query;
+
+    useEffect(() => {
+        if (Boolean(handleQuery) && typeof handleQuery == 'string') {
+            setHandle(handleQuery)
+            setHandleChanged(true);
+        }
+
+    }, [handleQuery])
 
     const { isConnected } = useAccount()
     const { open } = useWeb3Modal();
@@ -30,9 +40,9 @@ export default function Send() {
         abi: storkABI,
         functionName: 'sendToTwitterHandle',
         args: [handle!],
-        enabled: Boolean(handle) && Boolean(amount) && isConnected,
+        enabled: Boolean(handle) && isConnected && amount != undefined && amount > 0,
         overrides: {
-            value: Boolean(amount) ? ethers.utils.parseEther(amount!) : BigNumber.from(0),
+            value: amount?.toString() != undefined ? ethers.utils.parseEther(amount?.toString()) : BigNumber.from(0),
             gasLimit: BigNumber.from(1500000)
         }
     });
@@ -57,7 +67,7 @@ export default function Send() {
                             damping: 25,
                         }} className="text-3xl font-bold text-gray-900">
                             Send
-                            {amount && <span>&nbsp;
+                            {amount != undefined && amount > 0 && <span>&nbsp;
                                 {
                                     amount?.toString().split('').map((item, index) => <MotionCharacter key={index.toString()} text={item} />)}
                             </span>
@@ -81,7 +91,14 @@ export default function Send() {
                                         </label>
 
                                         <div className="relative flex">
-                                            <input step="0.000000001" onChange={e => setAmount(e.target.value)} type="number" name="amount" id="amount" placeholder="4.20" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
+                                            <input step="0.000000001" onChange={e => {
+                                                let parsedValue = Number.parseFloat(e.target.value);
+                                                if (isNaN(parsedValue) || parsedValue < 0) {
+                                                    parsedValue = 0;
+                                                }
+
+                                                setAmount(parsedValue)
+                                            }} type="number" name="amount" id="amount" placeholder="4.20" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
                                             <div className="absolute inset-y-0 text-base font-medium right-0 flex items-center pr-4 text-gray-400 rounded-r-lg pointer-events-none sm:text-sm">MATIC</div>
                                         </div>
                                     </div>
@@ -96,7 +113,7 @@ export default function Send() {
                                             setHandle(value);
                                         }} type="text" name="handle" id="handle" placeholder="@username" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
                                     </div>
-                                    <button type='submit' disabled={!Boolean(handle) || !Boolean(amount) || isWriteLoading || isTransactionPending} onClick={(e) => {
+                                    <button type='submit' disabled={!Boolean(handle) || amount == undefined || amount <= 0 || isWriteLoading || isTransactionPending} onClick={(e) => {
                                         if (!isConnected) {
                                             e.preventDefault();
                                             open?.();
