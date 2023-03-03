@@ -13,7 +13,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
 - [Stork - Alpha](#stork---alpha)
   - [Table of Contents](#table-of-contents)
   - [How it works?](#how-it-works)
-  - [Meta Transactions](#meta-transactions)
+  - [Gaseless claims](#gaseless-claims)
   - [AccessToken privacy](#accesstoken-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
   - [Emmbeded JS code](#emmbeded-js-code)
@@ -63,9 +63,9 @@ The purpose of this function is to determine if `msg.Sender` has an associated T
 
 To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address, without requiring any further interaction with the contract.
 
-## Meta Transactions
+## Gaseless claims
 
-The current process of claiming funds in the Stork system requires a minimum of one transaction, which necessitates paying gas fees. This approach presents a problem if the user has no `MATIC`. The issue is compounded as Stork is focused on making onboarding to crypto more accessible. To resolve this, [OpenZeppelin Defender Relayers](https://docs.openzeppelin.com/defender/relay) and [Meta transactions](https://docs.openzeppelin.com/contracts/4.x/api/metatx) can be leveraged. Additionally, it is important to note that the beta version of Chainlink Functions only permits whitelisted addresses to call DON network. Thankfully, with meta-transactions (because of Forwarder), both problems can be addressed with a single solution.
+The current process of claiming funds in the Stork system requires a minimum of one transaction, which necessitates paying gas fees. This approach presents a problem if the user has no `MATIC`. The issue is compounded as Stork is focused on making onboarding to crypto more accessible. To resolve this, [OpenZeppelin Defender Relayers](https://docs.openzeppelin.com/defender/relay) and [Meta transactions](https://docs.openzeppelin.com/contracts/4.x/api/metatx) can be leveraged. Additionally, it is important to note that the beta version of Chainlink Functions only permits whitelisted addresses to call DON network. Thankfully, with meta-transactions (because of Relayer), both problems can be addressed with a single solution.
 
 > Gasless meta-transactions offer users a more seamless experience, and potentially one where they don’t have to spend as much money to engage with the blockchain. This method gives users the option to sign a transaction for free and have it securely executed by a third party, with that other party paying the gas to execute the transaction.
 >
