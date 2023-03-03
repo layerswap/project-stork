@@ -35,7 +35,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       {ready ? (
         <WagmiConfig client={wagmiClient}>
-          <Component {...pageProps} />
+          <Component className=' bg-gray-50' {...pageProps} />
         </WagmiConfig>
       ) : null}
 

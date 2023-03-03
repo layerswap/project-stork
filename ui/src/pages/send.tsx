@@ -74,17 +74,6 @@ export default function Send() {
                                 write?.();
                             }}>
                                 <div className="space-y-5">
-                                    <div className="flex flex-col">
-                                        <label htmlFor='handle' className="text-base font-medium text-gray-900">
-                                            To:
-                                        </label>
-
-                                        <input value={handle} onBlur={(e) => setHandleChanged(Boolean(e.target.value))} onChange={e => {
-                                            let value = e.target.value;
-                                            value = value.replace('@', '');
-                                            setHandle(value);
-                                        }} type="text" name="handle" id="handle" placeholder="@username" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
-                                    </div>
 
                                     <div className="flex flex-col">
                                         <label htmlFor='amount' className="text-base font-medium text-gray-900">
@@ -95,6 +84,17 @@ export default function Send() {
                                             <input step="0.000000001" onChange={e => setAmount(e.target.value)} type="number" name="amount" id="amount" placeholder="4.20" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
                                             <div className="absolute inset-y-0 text-base font-medium right-0 flex items-center pr-4 text-gray-400 rounded-r-lg pointer-events-none sm:text-sm">MATIC</div>
                                         </div>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor='handle' className="text-base font-medium text-gray-900">
+                                            To:
+                                        </label>
+
+                                        <input value={handle} onBlur={(e) => setHandleChanged(Boolean(e.target.value))} onChange={e => {
+                                            let value = e.target.value;
+                                            value = value.replace('@', '');
+                                            setHandle(value);
+                                        }} type="text" name="handle" id="handle" placeholder="@username" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
                                     </div>
                                     <button type='submit' disabled={!Boolean(handle) || !Boolean(amount) || isWriteLoading || isTransactionPending} onClick={(e) => {
                                         if (!isConnected) {

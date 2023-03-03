@@ -5,7 +5,7 @@ export default function Navbar() {
         <div className="container px-4 mx-auto sm:px-6 lg:px-8">
             <div className="flex items-center justify-between">
                 <div className="flex-shrink-0">
-                    <a href="#" title="" className="flex">
+                    <a href="/" title="" className="flex">
                         <p className="w-auto h-8 font-extrabold text-3xl">Stork</p>
                     </a>
                 </div>

@@ -54,7 +54,7 @@ export default function Sent() {
                     {info &&
                         <section className='max-w-xs mx-auto mt-5 overflow-hidden bg-white shadow rounded-xl'>
                             {
-                                <TweetPrompt tweetText={`Hey @${info?.handle} just sent you ${info?.amount} MATIC via Stork!`} />
+                                <TweetPrompt handle={info.handle} amount={info.amount} />
                             }
                         </section>
                     }
