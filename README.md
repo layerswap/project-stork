@@ -169,7 +169,7 @@ Stork is a promising project that aims to leverage social identity for transacti
 
 - Stork Contract [chainlink-functions/contracts/Stork.sol](/chainlink-functions/contracts/Stork.sol)
 - Stork Javascript Chainlink Function [chainlink-functions/stork-twitter.js](/chainlink-functions/stork-twitter.js)
-- Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220), [Send Stork Request with Meta-Transaction](/chainlink-functions/tasks/Functions-client/request.js#L376), [Deploy MinimalForwarder](chainlink-functions/tasks/Functions-client/deployForwarder.js)
+- Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Deploy MinimalForwarder](chainlink-functions/tasks/Functions-client/deployForwarder.js), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220), [Send Stork Request with Meta-Transaction](/chainlink-functions/tasks/Functions-client/request.js#L376)
 
 ## Afterword and Authors
 - [Aram Kocharyan](https://twitter.com/bot_insane)
