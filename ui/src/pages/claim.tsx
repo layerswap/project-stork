@@ -26,7 +26,7 @@ export default function Claim() {
 
     const { isConnected, address } = useAccount()
     const { data: balance, error: readBalanceError, isError: isReadBalanceError } = useReadBalance(userData?.userName);
-    const balanceInEth = ethers.utils.formatEther(balance?.toString()!);
+    const balanceInEth = balance != undefined ? ethers.utils.formatEther(balance.toString()) : '0';
     const balanceInUsd = Number.parseFloat(balanceInEth) * maticPrice;
 
     const contract = useContract({
