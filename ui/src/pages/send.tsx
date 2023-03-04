@@ -18,13 +18,14 @@ import { useUSDprice } from '@/lib/hooks/usePrice';
 export default function Send() {
     const router = useRouter();
     const [handle, setHandle] = useState<string>();
-    const [amount, setAmount] = useState<number>();
+    const [amount, setAmount] = useState<string>();
     const [handleChanged, setHandleChanged] = useState<boolean>();
     const [amountIsInUSD, setAmountInUSD] = useState<boolean>();
     const usdPriceData = useUSDprice('MATIC');
     const { handle: handleQuery } = router.query;
     const [amountChangedAfterConv, setAmountChangedAfterConf] = useState<boolean>(false);
-    const [amountBeforeConv, setAmountBeforeConf] = useState<number>();
+    const [amountBeforeConv, setAmountBeforeConf] = useState<string>();
+    const numericAmount = amount != undefined ? Number.parseFloat(amount) : 0;
 
     useEffect(() => {
         if (Boolean(handleQuery) && typeof handleQuery == 'string') {
@@ -46,9 +47,9 @@ export default function Send() {
         abi: storkABI,
         functionName: 'sendToTwitterHandle',
         args: [handle!],
-        enabled: Boolean(handle) && isConnected && amount != undefined && !isNaN(amount) && amount > 0,
+        enabled: Boolean(handle) && isConnected && numericAmount > 0,
         overrides: {
-            value: amount != undefined && !isNaN(amount) && amount > 0 ? ethers.utils.parseEther((amountIsInUSD ? usdToAsset(amount, usdPriceData.price) : amount)?.toString()) : BigNumber.from(0),
+            value: numericAmount > 0 ? ethers.utils.parseEther((amountIsInUSD ? usdToAsset(numericAmount, usdPriceData.price) : numericAmount)?.toString()) : BigNumber.from(0),
             gasLimit: BigNumber.from(1500000)
         }
     });
@@ -57,7 +58,7 @@ export default function Send() {
     const { isLoading: isTransactionPending, isSuccess, data } = useWaitForTransaction({
         hash: writeData?.hash,
         onSuccess: (d) => {
-            router.push(`/sent?txId=${d.transactionHash}&handle=${handle}&amount=${amount}`);
+            router.push(`/sent?txId=${d.transactionHash}&handle=${handle}&amount=${numericAmount}`);
         }
     });
 
@@ -73,10 +74,10 @@ export default function Send() {
                             }} className="text-3xl font-bold text-slate-600 flex flex-col items-center justify-center">
                             <div className='flex items-center'>
                                 <span className='font-semibold'>Send&nbsp;</span>
-                                {amount != undefined && amount > 0 &&
-                                    <FlipNumbers height={28} width={18} color="black" duration={1} background="white" play numbers={amount.toString()} />
+                                {numericAmount > 0 &&
+                                    <FlipNumbers height={28} width={18} color="black" duration={1} background="white" play numbers={numericAmount.toString()} />
                                 }
-                                <span className='font-semibold'>{amount != undefined && amount > 0 && <span>&nbsp;</span>}{amountIsInUSD ? 'USD' : 'MATIC'}</span>
+                                <span className='font-semibold'>{numericAmount > 0 && <span>&nbsp;</span>}{amountIsInUSD ? 'USD' : 'MATIC'}</span>
                             </div>
                             <div className={handleChanged ? 'inline' : 'hidden'}><span className='font-semibold'>to&nbsp;</span><span className='text-black'>@{handle}</span></div>
                         </motion.div>
@@ -95,15 +96,16 @@ export default function Send() {
                                         </label>
 
                                         <div className="relative flex">
-                                            <input maxLength={5} step="0.0001" value={amount}
+                                            <input value={amount ?? ''}
+                                                pattern="^[0-9]*[.,]?[0-9]*$"
+                                                onInput={(event: React.ChangeEvent<HTMLInputElement>) => { replaceComma(event); limitDecimalPlaces(event, 4) }}
                                                 onChange={e => {
-                                                    let amountString = e.target.value;
-                                                    let parsedValue = Number.parseFloat(amountString);
-                                                    parsedValue = Number.parseFloat(parsedValue.toPrecision(4));
-
-                                                    setAmount(parsedValue)
-                                                    setAmountChangedAfterConf(false);
-                                                }} type="number" name="amount" id="amount" placeholder="4.20" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-l-lg ring-inset focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
+                                                    if (/^[0-9]*[.,]?[0-9]*$/.test(e.target.value)) {
+                                                        setAmount(e.target.value);
+                                                        setAmountChangedAfterConf(true);
+                                                    }
+                                                }}
+                                                type="text" name="amount" id="amount" placeholder="4.20" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-l-lg ring-inset focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
                                             <motion.button
                                                 layout
                                                 transition={{
@@ -112,16 +114,16 @@ export default function Send() {
                                                 onClick={() => {
                                                     setAmountBeforeConf(amount);
 
-                                                    if (!amountChangedAfterConv && amountBeforeConv != undefined && amountBeforeConv > 0) {
+                                                    if (!amountChangedAfterConv && amountBeforeConv != undefined && Number.parseFloat(amountBeforeConv) > 0) {
                                                         setAmount(amountBeforeConv);
                                                     }
                                                     else {
                                                         if (amount && usdPriceData?.price) {
                                                             if (amountIsInUSD) {
-                                                                setAmount(usdToAsset(amount, usdPriceData.price))
+                                                                setAmount(usdToAsset(numericAmount, usdPriceData.price).toString())
                                                             }
                                                             else {
-                                                                setAmount(assetToUsd(amount, usdPriceData.price))
+                                                                setAmount(assetToUsd(numericAmount, usdPriceData.price).toString())
                                                             }
                                                         }
 
@@ -149,14 +151,14 @@ export default function Send() {
                                             setHandle(value);
                                         }} type="text" name="handle" id="handle" placeholder="@username" className="text-base font-medium text-gray-900 border flex-1 block w-full min-w-0 py-3 pl-4 pr-16 placeholder-gray-500 border-gray-300 rounded-lg focus:ring-1 focus:outline-none focus:ring-gray-800 focus:border-gray-800 sm:text-sm caret-gray-800" />
                                     </div>
-                                    <button type='submit' disabled={!Boolean(handle) || amount == undefined || amount <= 0 || isWriteLoading || isTransactionPending} onClick={(e) => {
+                                    <button type='submit' disabled={!Boolean(handle) || numericAmount <= 0 || isWriteLoading || isTransactionPending} onClick={(e) => {
                                         if (!isConnected) {
                                             e.preventDefault();
                                             open?.();
                                         }
                                     }}
                                         className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 bg-gray-900 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-700 disabled:hover:bg-slate-700 disabled:bg-slate-700"
-                                    >{!Boolean(handle) ? 'Enter handle' : (!Boolean(amount) ? 'Enter amount' : (!isConnected ? 'Connect wallet' : 'Send'))}</button>
+                                    >{!Boolean(handle) ? 'Enter handle' : (numericAmount <= 0 ? 'Enter amount' : (!isConnected ? 'Connect wallet' : 'Send'))}</button>
                                 </div>
                             </form>
                         </div>
@@ -183,34 +185,6 @@ export default function Send() {
                 </div>
             </section>
         </>
-        // <>
-        //     <div hidden={isWriteLoading || isTransactionPending || isSuccess}>
-        //         <form onSubmit={(e) => {
-        //             e.preventDefault();
-        //             write?.();
-        //         }}>
-        //             <input name='handle' placeholder='handle' onChange={e => setHandle(e.target.value)}></input>
-        //             <div><input name='amount' type='number' step="0.000000001" onChange={e => setAmount(e.target.value)}></input>Matic</div>
-        //             <button disabled={!Boolean(handle) || !Boolean(amount)} onClick={(e) => {
-        //                 if (!isConnected) {
-        //                     e.preventDefault();
-        //                     open?.();
-        //                 }
-        //             }}>{!Boolean(handle) ? 'Enter handle' : (!Boolean(amount) ? 'Enter amount' : (!isConnected ? 'Connect wallet' : 'Send'))}</button>
-        //         </form>
-        //         <Web3Button icon="show" label="Connect Wallet" balance="show" />
-        //     </div>
-        //     <p hidden={!isWriteLoading}>Send in progress</p>
-        //     <p hidden={!isTransactionPending}>Transaction publishing</p>
-        //     {isSuccess && (
-        //         <div>
-        //             Successfully sent!
-        //             <div>
-        //                 <a href={`${polygonMumbai.blockExplorers.etherscan.url}/tx/${writeData?.hash}`}>Explorer</a>
-        //             </div>
-        //         </div>
-        //     )}
-        // </>
     )
 }
 
@@ -220,4 +194,25 @@ function assetToUsd(amount: number, usdPrice: number) {
 
 function usdToAsset(amount: number, usdPrice: number) {
     return Number.parseFloat((Number.parseFloat(amount.toPrecision(4)) * usdPrice).toFixed(4));
+}
+
+function limitDecimalPlaces(e: React.ChangeEvent<HTMLInputElement>, count: number) {
+    if (e.target.value.indexOf('.') == -1) { return; }
+    if ((e.target.value.length - e.target.value.indexOf('.')) > count) {
+        e.target.value = ParseFloat(e.target.value, count).toString();
+    }
+}
+
+function ParseFloat(str: string, val: number) {
+    str = str.toString();
+    str = str.slice(0, (str.indexOf(".")) + val + 1);
+    return Number(str);
+}
+
+function replaceComma(e: React.ChangeEvent<HTMLInputElement>) {
+    var val = e.target.value;
+    if (val.match(/\,/)) {
+        val = val.replace(/\,/g, '.');
+        e.target.value = val;
+    }
 }
