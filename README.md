@@ -20,7 +20,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
   - [Run, deploy, and test](#run-deploy-and-test)
   - [Conclusion](#conclusion)
   - [Contracts and Scripts](#contracts-and-scripts)
-  - [Afterword and Authors](#afterword-and-authors)
+  - [Authors](#authors)
 
 ## How it works?
 
@@ -161,6 +161,16 @@ npx hardhat functions-sub-add --subid SUBSCRIPTION_ID --contract STORK_CONTRACT_
 npx hardhat stork-request --contract STORK_CONTRACT_ADDRESS --accesstoken TWITTER_ACCESS_TOKEN --network mumbai --twitterhandle TWITTER_HANDLE
 ```
 
+6. Send request via Forwarder (Meta-transaction)
+
+Configure your second account to only sign transaction by adding `PRIVATE_KEY_2` to `.env` file. Then run:
+
+```console
+npx hardhat stork-forwarder-request --contract STORK_CONTRACT_ADDRESS --accesstoken TWITTER_ACCESS_TOKEN --network mumbai --twitterhandle TWITTER_HANDLE
+```
+
+Make sure you have `Forwarder` contract address configured in [network-config](chainlink-functions/network-config.js).
+
 ## Conclusion
 
 Stork is a promising project that aims to leverage social identity for transacting digital assets. While it is not ready for production use, it provides a solid foundation for further development and exploration of the use of Chainlink Functions for on-chain social identity verification. The project code can be found on the links provided below.
@@ -169,9 +179,10 @@ Stork is a promising project that aims to leverage social identity for transacti
 
 - Stork Contract [chainlink-functions/contracts/Stork.sol](/chainlink-functions/contracts/Stork.sol)
 - Stork Javascript Chainlink Function [chainlink-functions/stork-twitter.js](/chainlink-functions/stork-twitter.js)
+- OpenZeppelin Defender Auto Task for Relayer [chainlink-functions/autotask/relay/index.js](/chainlink-functions/autotask/relay/index.js)
 - Helping scripts [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54), [Deploy MinimalForwarder](chainlink-functions/tasks/Functions-client/deployForwarder.js), [Send Stork Request](/chainlink-functions/tasks/Functions-client/request.js#L220), [Send Stork Request with Meta-Transaction](/chainlink-functions/tasks/Functions-client/request.js#L376)
 
-## Afterword and Authors
+## Authors
 - [Aram Kocharyan](https://twitter.com/bot_insane)
 - [Babken Gevorgyan](https://twitter.com/babgev)
 - [Anna Tantushyan](https://twitter.com/TantushyanAnna)
