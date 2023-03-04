@@ -163,7 +163,7 @@ export default function Claim() {
                                 <div className="flex items-center justify-center px-1 space-x-3 lg:space-x-6">
                                     <div>
                                         <p className="text-4xl font-bold text-white">{balanceInEth} MATIC</p>
-                                        <p className="mt-1 text-xl font-medium text-gray-400">${balanceInUsd}</p>
+                                        <p className="mt-1 text-xl font-medium text-gray-400">${balanceInUsd.toFixed(2)}</p>
                                     </div>
                                 </div>
                                 {balance?.gt(0) &&

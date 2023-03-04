@@ -76,7 +76,7 @@ export default function Send() {
                                 {amount != undefined && amount > 0 &&
                                     <FlipNumbers height={28} width={18} color="black" duration={1} background="white" play numbers={amount.toString()} />
                                 }
-                                <span className='font-semibold'>{amount != undefined && amount > 0 && <span>&#20;</span>}{amountIsInUSD ? 'USD' : 'MATIC'}</span>
+                                <span className='font-semibold'>{amount != undefined && amount > 0 && <span>&nbsp;</span>}{amountIsInUSD ? 'USD' : 'MATIC'}</span>
                             </div>
                             <div className={handleChanged ? 'inline' : 'hidden'}><span className='font-semibold'>to&nbsp;</span><span className='text-black'>@{handle}</span></div>
                         </motion.div>
