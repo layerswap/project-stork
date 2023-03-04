@@ -28,7 +28,7 @@ export default function Send() {
 
     useEffect(() => {
         if (Boolean(handleQuery) && typeof handleQuery == 'string') {
-            setHandle(handleQuery)
+            setHandle(handleQuery.replace('@', ''))
             setHandleChanged(true);
         }
 
