@@ -7,8 +7,6 @@ import { useEffect, useRef, useState } from 'react';
 import { STORK_CONTRACT_ADDRESS } from '@/lib/constants';
 import Navbar from '@/components/navbar';
 import { motion, useAnimation, useInView } from 'framer-motion';
-import MotionCharacter from '@/components/motionCharacter';
-import InformationCard from '@/components/informationCard';
 import TweetPrompt from '@/components/tweetPrompt';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
