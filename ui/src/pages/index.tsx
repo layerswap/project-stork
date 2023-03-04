@@ -5,10 +5,28 @@ import Navbar from "@/components/navbar";
 import { useTwitterConnect } from "@/lib/hooks/useTwitterConnect";
 import { isMobile } from "@/lib/helpers/isMobile";
 import Link from "next/link";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/dialog";
+import TwitterButton from "@/components/twitterButton";
+
+let checkBalanceButton = <button
+  title=""
+  className="inline-flex items-center justify-center w-full px-6 py-3 mt-4 text-lg font-bold text-gray-900 transition-all duration-200 border-2 border-gray-400 sm:w-auto sm:mt-0 rounded-xl font-pj focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-900 focus:bg-gray-900 hover:text-white focus:text-white hover:border-gray-900 focus:border-gray-900"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+  </svg>
+
+  Check your balance
+</button>
 
 export default function Home() {
   let router = useRouter();
   const [handle, setHandle] = useState<string>();
+  const [dialogIsOpen, setDialogIsOpen] = useState<boolean>();
+
+  let { isConnected } = useTwitterConnect(undefined, () => {
+    dialogIsOpen && router.push('/claim');
+  });
 
   return (
     <>
@@ -49,8 +67,31 @@ export default function Home() {
 
                   </form>
                   {
-                    <Link
-                      href='/claim'
+                    <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
+                      <DialogContent className="bg-gradient-to-br from-blue-50 to-white">
+                        <div className="flex flex-col items-center mx-12">
+                          <p className="w-auto h-8 text-black font-extrabold text-2xl sm:text-3xl">Stork</p>
+                          <h1 className="text-2xl mt-4 font-bold text-gray-800 sm:text-xl lg:text-4xl">
+                            Check your balance
+                          </h1>
+                          <h1 className="text-md mt-1 mb-8 font-bold text-gray-600">
+                            Build your on-chain wealth
+                          </h1>
+                          <TwitterButton />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  }
+                  {
+                    <button
+                      onClick={() => {
+                        if (isConnected) {
+                          router.push('/claim');
+                        }
+                        else {
+                          setDialogIsOpen(true);
+                        }
+                      }}
                       title=""
                       className="inline-flex items-center justify-center w-full px-6 py-3 mt-4 text-lg font-bold text-gray-900 transition-all duration-200 border-2 border-gray-400 sm:w-auto sm:mt-0 rounded-xl font-pj focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-900 focus:bg-gray-900 hover:text-white focus:text-white hover:border-gray-900 focus:border-gray-900"
                     >
@@ -59,7 +100,7 @@ export default function Home() {
                       </svg>
 
                       Check your balance
-                    </Link>
+                    </button>
                   }
                 </div>
 

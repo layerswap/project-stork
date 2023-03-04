@@ -7,26 +7,8 @@ import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu';
 
-function getTwitterOauthUrl() {
-    let { authClient } = GetClients();
-
-    let state = crypto.randomUUID();
-    const authUrl = authClient.generateAuthURL({
-        state: state,
-        code_challenge_method: "plain",
-        code_challenge: state
-    });
-
-
-    return authUrl;
-}
-
 export default function TwitterButton() {
-    let ismobile = isMobile();
-    let { isConnected, data, logOut } = useTwitterConnect();
-    let router = useRouter();
-
-    const [authWindow, setAuthWindow] = useState<Window | null>()
+    let { isConnected, data, logOut, logIn } = useTwitterConnect();
 
     return (
         <>
@@ -54,16 +36,7 @@ export default function TwitterButton() {
                 </DropdownMenu>
                 :
                 <button
-                    onClick={() => {
-                        if (ismobile) {
-                            router.push(getTwitterOauthUrl());
-                        }
-                        else {
-                            authWindow?.close();
-                            let childWindow = window.open(getTwitterOauthUrl(), '_blank', 'width=420,height=720');
-                            setAuthWindow(childWindow);
-                        }
-                    }}
+                    onClick={() => logIn()}
                     type="button"
                     className="inline-flex items-center gap-x-2 rounded-lg bg-indigo-600 py-2.5 px-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
