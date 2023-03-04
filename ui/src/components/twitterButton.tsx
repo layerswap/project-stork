@@ -1,4 +1,3 @@
-import { LSK_USER_CRED } from '@/lib/constants';
 import { isMobile } from '@/lib/helpers/isMobile';
 import { useTwitterConnect } from '@/lib/hooks/useTwitterConnect';
 import { GetClients } from '@/lib/twitterClient';
@@ -6,7 +5,7 @@ import { LogOut, Twitter } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from './dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './dropdown-menu';
 
 function getTwitterOauthUrl() {
     let { authClient } = GetClients();
@@ -24,15 +23,10 @@ function getTwitterOauthUrl() {
 
 export default function TwitterButton() {
     let ismobile = isMobile();
-    let { isConnected, data, logOut} = useTwitterConnect();
+    let { isConnected, data, logOut } = useTwitterConnect();
     let router = useRouter();
 
     const [authWindow, setAuthWindow] = useState<Window | null>()
-
-    const twdata = useTwitterConnect(() => {
-        router.push('/claim');
-    });
-
 
     return (
         <>
@@ -51,9 +45,10 @@ export default function TwitterButton() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                         <DropdownMenuLabel>@{data?.userName}</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={()=> logOut()}>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => logOut()}>
                             <LogOut className="mr-2 h-4 w-4" />
-                            <span>Log out</span>
+                            <span>Log Out</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

@@ -9,7 +9,6 @@ import Link from "next/link";
 export default function Home() {
   let router = useRouter();
   const [handle, setHandle] = useState<string>();
-  const [authWindow, setAuthWindow] = useState<Window | null>()
 
   return (
     <>
