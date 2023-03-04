@@ -10,6 +10,9 @@ import InformationCard from '@/components/informationCard';
 import { useTwitterConnect } from '@/lib/hooks/useTwitterConnect';
 import { useAutoTask } from '@/lib/hooks/useAutoTask';
 import useInterval from '@/lib/hooks/useInterval';
+import Background from '@/components/background';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/popover';
+import { Fuel } from 'lucide-react';
 
 const types = {
     ForwardRequest: [
@@ -85,9 +88,9 @@ export default function Claim() {
     }, isAutotaskSuccess && balance?.gt(0) ? 2000 : null);
 
     return (
-        <>
+        <Background>
             <Navbar />
-            <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+            <section className="py-12 sm:py-16 lg:py-20">
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="max-w-md mx-auto mt-8 text-center">
                         <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl">
@@ -111,8 +114,8 @@ export default function Claim() {
                                 {(balance?.gt(0)) &&
                                     <div className="mt-5">
                                         <button
-                                            disabled={isAutotaskLoading || isAutotaskSuccess}
-                                            className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 border border-transparent rounded-lg bg-rose-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-600 hover:bg-rose-600"
+                                            disabled={isAutotaskLoading || isAutotaskSuccess || isSignLoading}
+                                            className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 border border-transparent rounded-lg bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300 hover:bg-indigo-500 disabled:bg-slate-800"
                                             onClick={() => {
                                                 signTypedData?.();
                                             }}>
@@ -144,9 +147,23 @@ export default function Claim() {
                     {isAutotaskSuccess && balance?.gt(0) &&
                         <InformationCard isLoading={true} text="Balance changes will be reflected soon." type='wallet' />
                     }
+                    {/* {
+                        <Popover>
+                            <PopoverTrigger className='bg-slate-800 text-white text-lg font-bold items-center'>
+                                <div className='flex flex-row gap-x-2 items-center justify-items-center'>
+                                    <Fuel />
+
+                                    <span>
+                                        Ask a Degen friend for a top-up
+                                    </span>
+                                </div>
+                            </PopoverTrigger>
+                            <PopoverContent>Place content for the popover here.</PopoverContent>
+                        </Popover>
+                    } */}
                 </div>
             </section>
-        </>
+        </Background>
     )
 }
 

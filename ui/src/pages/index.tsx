@@ -7,17 +7,8 @@ import { isMobile } from "@/lib/helpers/isMobile";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/dialog";
 import TwitterButton from "@/components/twitterButton";
-
-let checkBalanceButton = <button
-  title=""
-  className="inline-flex items-center justify-center w-full px-6 py-3 mt-4 text-lg font-bold text-gray-900 transition-all duration-200 border-2 border-gray-400 sm:w-auto sm:mt-0 rounded-xl font-pj focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-900 focus:bg-gray-900 hover:text-white focus:text-white hover:border-gray-900 focus:border-gray-900"
->
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
-  </svg>
-
-  Check your balance
-</button>
+import Background from "@/components/background";
+import { Wallet, ChevronRight } from "lucide-react"
 
 export default function Home() {
   let router = useRouter();
@@ -30,109 +21,79 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
-      <div className="relative bg-gray-50">
-        <div className="absolute bottom-0 right-0 overflow-hidden lg:inset-y-0">
-          <img className="w-auto h-full" src="https://d33wubrfki0l68.cloudfront.net/1e0fc04f38f5896d10ff66824a62e466839567f8/699b5/images/hero/3/background-pattern.png" alt="" />
-        </div>
+      <Background>
+        <Navbar />
+        <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
+          <DialogContent className="bg-gradient-to-br from-blue-50 to-white">
+            <div className="flex flex-col items-center mx-12">
+              <p className="w-auto h-8 text-black font-extrabold text-2xl sm:text-3xl">Stork</p>
+              <h1 className="text-2xl mt-4 font-bold text-gray-800 sm:text-xl lg:text-4xl">
+                Check your balance
+              </h1>
+              <h1 className="text-md mt-1 mb-8 font-bold text-gray-600">
+                Build your on-chain wealth
+              </h1>
+              <TwitterButton />
+            </div>
+          </DialogContent>
+        </Dialog>
+        <div className="relative">
+          <section className="py-12 sm:py-16 lg:py-20 lg:pb-36">
+            <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+              <div className="max-w-2xl mx-auto text-center">
+                <p className="mt-5 text-4xl font-bold leading-tight text-gray-900 sm:leading-tight sm:text-5xl lg:text-6xl lg:leading-tight font-pj">
+                  Send $MATIC to
+                  <span className="relative inline-flex sm:inline">
+                    <span className="bg-gradient-to-r from-[#44BCFF] via-[#FF44EC] to-[#FF675E] blur-lg filter opacity-30 w-full h-full absolute inset-0"></span>
+                    <span className="relative"> anyone </span>
+                  </span>
+                  with a twitter handle
+                </p>
 
-        <section className="relative py-12 sm:py-16 lg:py-20 lg:pb-36">
-          <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div className="grid max-w-lg grid-cols-1 mx-auto lg:max-w-full lg:items-center lg:grid-cols-2 gap-y-12 lg:gap-x-8">
-              <div>
-                <div className="text-center lg:text-left">
-                  <h1 className="text-4xl font-bold leading-tight text-gray-900 sm:text-5xl sm:leading-tight lg:leading-tight lg:text-6xl font-pj">Send $MATIC to anyone with a twitter handle</h1>
-                  <p className="mt-2 text-lg text-gray-600 sm:mt-8 font-inter">Stork enables anyone on Twitter to leverage their social identity for transacting digital assets</p>
+                <div className="px-8 sm:items-center sm:justify-center sm:px-0 sm:space-x-5 sm:flex mt-9">
+                  <Link
+                    href="/send"
+                    title=""
+                    className="inline-flex items-center justify-center w-full px-8 py-3 text-lg font-bold text-white transition-all duration-200 bg-gray-900 border-2 border-transparent sm:w-auto rounded-xl font-pj hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                    role="button"
+                  >
+                    Send to @anyone
+                  </Link>
 
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    let url = '/send' + (handle != undefined ? `?handle=${handle}` : '');
-                    router.push(url);
-                  }} method="POST" className="mt-8 mb-2 sm:mt-10">
-                    <div className="relative p-2 sm:border sm:border-gray-400 group sm:rounded-xl sm:focus-within:ring-1 sm:focus-within:ring-gray-900 sm:focus-within:border-gray-900">
-                      <input
-                        type="text"
-                        name="handle"
-                        onChange={(e) => {
-                          setHandle(e.target.value);
-                        }}
-                        id="handle"
-                        placeholder="@handle"
-                        className="block w-full px-4 py-4 text-gray-900 placeholder-gray-500 bg-transparent border border-gray-400 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 rounded-xl sm:border-none sm:focus:ring-0 sm:focus:border-transparent"
-                      />
-                      <div className="mt-4 sm:mt-0 sm:absolute sm:inset-y-0 sm:right-0 sm:flex sm:items-center sm:pr-2">
-                        <button type="submit" className="inline-flex px-6 py-3 text-lg font-bold text-white transition-all duration-200 bg-gray-900 rounded-lg focus:outline-none focus:bg-gray-600 font-pj hover:bg-gray-600">Send</button>
-                      </div>
-                    </div>
-
-                  </form>
-                  {
-                    <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
-                      <DialogContent className="bg-gradient-to-br from-blue-50 to-white">
-                        <div className="flex flex-col items-center mx-12">
-                          <p className="w-auto h-8 text-black font-extrabold text-2xl sm:text-3xl">Stork</p>
-                          <h1 className="text-2xl mt-4 font-bold text-gray-800 sm:text-xl lg:text-4xl">
-                            Check your balance
-                          </h1>
-                          <h1 className="text-md mt-1 mb-8 font-bold text-gray-600">
-                            Build your on-chain wealth
-                          </h1>
-                          <TwitterButton />
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  }
-                  {
-                    <button
-                      onClick={() => {
-                        if (isConnected) {
-                          router.push('/claim');
-                        }
-                        else {
-                          setDialogIsOpen(true);
-                        }
-                      }}
-                      title=""
-                      className="inline-flex items-center justify-center w-full px-6 py-3 mt-4 text-lg font-bold text-gray-900 transition-all duration-200 border-2 border-gray-400 sm:w-auto sm:mt-0 rounded-xl font-pj focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-900 focus:bg-gray-900 hover:text-white focus:text-white hover:border-gray-900 focus:border-gray-900"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
-                      </svg>
-
-                      Check your balance
-                    </button>
-                  }
+                  <button
+                    onClick={() => {
+                      if (isConnected) {
+                        router.push('/claim');
+                      }
+                      else {
+                        setDialogIsOpen(true);
+                      }
+                    }}
+                    title=""
+                    className="gap-x-2 inline-flex items-center justify-center w-full px-6 py-3 mt-4 text-lg font-bold text-gray-900 transition-all duration-200 border-2 border-gray-400 sm:w-auto sm:mt-0 rounded-xl font-pj focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-900 focus:bg-gray-900 hover:text-white focus:text-white hover:border-gray-900 focus:border-gray-900"
+                    role="button"
+                  >
+                    <Wallet />
+                    Check your balance
+                  </button>
                 </div>
 
-                <div className="flex items-center justify-center mt-10 space-x-6 lg:justify-start sm:space-x-8">
-                  <div className="flex items-center">
-                    <p className="text-3xl font-medium text-gray-900 sm:text-4xl font-pj">Fully</p>
-                    <p className="ml-3 text-sm text-gray-900 font-pj">Non<br />Custodial</p>
-                  </div>
-
-                  <div className="hidden sm:block">
-                    <svg className="text-gray-400" width="16" height="39" viewBox="0 0 16 39" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-                      <line x1="0.72265" y1="10.584" x2="15.7226" y2="0.583975"></line>
-                      <line x1="0.72265" y1="17.584" x2="15.7226" y2="7.58398"></line>
-                      <line x1="0.72265" y1="24.584" x2="15.7226" y2="14.584"></line>
-                      <line x1="0.72265" y1="31.584" x2="15.7226" y2="21.584"></line>
-                      <line x1="0.72265" y1="38.584" x2="15.7226" y2="28.584"></line>
-                    </svg>
-                  </div>
-
-                  <div className="flex items-center">
-                    <p className="text-3xl font-medium text-gray-900 sm:text-4xl font-pj">$1M+</p>
-                    <p className="ml-3 text-sm text-gray-900 font-pj">Transactions<br />Completed</p>
-                  </div>
-                </div>
+                <p className="mt-8 text-base text-gray-500 font-inter">Stork enables anyone on Twitter to leverage their social identity for transacting digital assets</p>
               </div>
 
-              <div className="hidden lg:block">
-                <img className="w-full" src="../heroimage.png" alt="" />
+              <div className="pb-1">
+                <div className="relative">
+                  <div className="absolute inset-0 h-2/3"></div>
+                  <div className="relative mx-auto">
+                    <div className="lg:max-w-6xl lg:mx-auto">
+                      <img className="transform scale-110" src="https://cdn.rareblocks.xyz/collection/clarity/images/hero/2/illustration.png" alt="" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-      </div>
+          </section>
+        </div>
+      </Background>
     </>)
 };

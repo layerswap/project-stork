@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import FlipNumbers from 'react-flip-numbers';
 import { ArrowUpDown } from 'lucide-react';
 import { useUSDprice } from '@/lib/hooks/swr/usePrice';
+import Background from '@/components/background';
 
 export default function Send() {
     const router = useRouter();
@@ -61,9 +62,9 @@ export default function Send() {
     });
 
     return (
-        <>
+        <Background>
             <Navbar />
-            <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+            <section className="py-12 sm:py-16 lg:py-20">
                 <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
                     <div className="text-center">
                         <motion.div
@@ -183,7 +184,7 @@ export default function Send() {
                     </div>
                 </div>
             </section>
-        </>
+        </Background>
     )
 }
 

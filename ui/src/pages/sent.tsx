@@ -11,6 +11,7 @@ import TweetPrompt from '@/components/tweetPrompt';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
 import ConfettiExplosion, { ConfettiProps } from 'react-confetti-explosion';
+import Background from '@/components/background';
 
 interface CompletedTxnInfo extends ParsedUrlQuery {
     txId: `0x${string}`,
@@ -31,9 +32,9 @@ export default function Sent() {
     let info = router.query as CompletedTxnInfo;
 
     return (
-        <>
+        <Background>
             <Navbar />
-            <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+            <section className="py-12 sm:py-16 lg:py-20">
                 <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
                     <div className="text-center flex items-center flex-col">
                         <h2 className="text-3xl font-bold text-gray-900">
@@ -59,6 +60,6 @@ export default function Sent() {
 
                 </div>
             </section>
-        </>
+        </Background>
     )
 }
