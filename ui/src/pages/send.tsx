@@ -13,7 +13,7 @@ import TweetPrompt from '@/components/tweetPrompt';
 import { useRouter } from 'next/router';
 import FlipNumbers from 'react-flip-numbers';
 import { ArrowUpDown } from 'lucide-react';
-import { useUSDprice } from '@/lib/hooks/usePrice';
+import { useUSDprice } from '@/lib/hooks/swr/usePrice';
 
 export default function Send() {
     const router = useRouter();
@@ -68,10 +68,11 @@ export default function Send() {
             <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
                 <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
                     <div className="text-center">
-                        <motion.div layout
-                            transition={{
-                                layout: { type: 'spring', duration: 0.6 }
-                            }} className="text-3xl font-bold text-slate-600 flex flex-col items-center justify-center">
+                        <motion.div
+                            key={handleChanged ? "withoutHandle" : "withHandle"}
+                            animate={{ opacity: 1 }}
+                            initial={{ opacity: 0 }}
+                            transition={{ delay: 0.1 }} className="text-3xl min-h-[80px] font-bold text-slate-600 flex flex-col items-center justify-center">
                             <div className='flex items-center'>
                                 <span className='font-semibold'>Send&nbsp;</span>
                                 {numericAmount > 0 &&
@@ -158,7 +159,7 @@ export default function Send() {
                                         }
                                     }}
                                         className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 bg-gray-900 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-gray-700 disabled:hover:bg-slate-700 disabled:bg-slate-700"
-                                    >{!Boolean(handle) ? 'Enter handle' : (numericAmount <= 0 ? 'Enter amount' : (!isConnected ? 'Connect wallet' : 'Send'))}</button>
+                                    >{!Boolean(handle) ? 'Enter handle' : (numericAmount <= 0 ? 'Enter amount' : (!isConnected ? 'Connect wallet' : isWriteLoading || isTransactionPending ? 'Sending...' : 'Send'))}</button>
                                 </div>
                             </form>
                         </div>

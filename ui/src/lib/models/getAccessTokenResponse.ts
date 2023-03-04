@@ -1,6 +1,7 @@
-export type GetAccessTokenData = {
-    isError: false
+export type AccessTokenData = {
     token: string | undefined,
     userName: string | undefined,
     profile_image_url: string | undefined
-} | { error: string, isError: true }
+}
+
+export type GetAccessTokenData = (AccessTokenData & { isError: false }) | { error: string, isError: true };

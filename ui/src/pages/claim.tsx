@@ -1,13 +1,15 @@
-import { Web3Button } from '@web3modal/react';
-import { useContractRead, useAccount, usePrepareContractWrite, useContractWrite, useWaitForTransaction, useContract, useSigner } from 'wagmi';
+import { useContractRead, useAccount, useContract, useBalance } from 'wagmi';
 import { forwarderAbi, storkABI } from '@/lib/ABIs/Stork';
 import { polygonMumbai } from 'wagmi/chains';
 import { BigNumber, ethers } from 'ethers';
 import { DEFENDER_URL, STORK_CONTRACT_ADDRESS, STORK_FORWARDER_CONTRACT_ADDRESS } from '@/lib/constants';
 import { useSignTypedData } from 'wagmi'
 import Navbar from '@/components/navbar';
-import { useUSDprice } from '@/lib/hooks/usePrice';
+import { useUSDprice } from '@/lib/hooks/swr/usePrice';
 import InformationCard from '@/components/informationCard';
+import { useTwitterConnect } from '@/lib/hooks/useTwitterConnect';
+import { useAutoTask } from '@/lib/hooks/useAutoTask';
+import useInterval from '@/lib/hooks/useInterval';
 
 const types = {
     ForwardRequest: [
@@ -22,10 +24,10 @@ const types = {
 
 export default function Claim() {
     let { price: maticPrice } = useUSDprice('MATIC');
-    let userData = JSON.parse(window.localStorage.getItem("USER_CRED") || "") as { token: string, userName: string, profile_image_url: string | undefined };
+    let { data: userData, isConnected: twitterIsConnected } = useTwitterConnect();
 
-    const { isConnected, address } = useAccount()
-    const { data: balance, error: readBalanceError, isError: isReadBalanceError } = useReadBalance(userData?.userName);
+    const { isConnected, address } = useAccount();
+    const { data: balance, error: readBalanceError, isError: isReadBalanceError, refetch: refetchUserBalance } = useReadBalance(userData?.userName);
     const balanceInEth = balance != undefined ? ethers.utils.formatEther(balance.toString()) : '0';
     const balanceInUsd = Number.parseFloat(balanceInEth) * maticPrice;
 
@@ -40,10 +42,12 @@ export default function Claim() {
         functionName: "getNonce",
         chainId: polygonMumbai.id,
         args: [address!],
-        enabled: Boolean(address) && isConnected
+        enabled: Boolean(address) && isConnected,
     });
 
-    const { data, isError, isLoading, isSuccess, signTypedData, variables } =
+    const { data: autotaskResult, call: callAutotask, isError: isAutoTaskError, isLoading: isAutotaskLoading, error: autotaskError, isSuccess: isAutotaskSuccess } = useAutoTask(DEFENDER_URL);
+
+    const { isError: isClaimError, error: claimError, isLoading: isSignLoading, isSuccess: isClaimSuccess, signTypedData, isIdle } =
         useSignTypedData({
             domain: {
                 chainId: polygonMumbai.id,
@@ -54,103 +58,41 @@ export default function Claim() {
             types,
             value: {
                 nonce: forwarderNonce!,
-                data: contract?.interface.encodeFunctionData('claimTwitterHandle', [userData.userName, userData.token, true])! as `0x${string}`,
+                data: contract?.interface.encodeFunctionData('claimTwitterHandle', [userData?.userName ?? '', userData?.token ?? '', true]) as `0x${string}`,
                 from: address!,
                 to: STORK_CONTRACT_ADDRESS,
                 gas: BigNumber.from(1000000),
                 value: BigNumber.from(0)
             },
             onSuccess: (data, variable) => {
-                fetch(DEFENDER_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        signature: data,
-                        request: {
-                            nonce: forwarderNonce?.toNumber(),
-                            data: contract?.interface.encodeFunctionData('claimTwitterHandle', [userData.userName, userData.token, true])! as `0x${string}`,
-                            from: address!,
-                            to: STORK_CONTRACT_ADDRESS,
-                            gas: 1000000,
-                            value: 0
-                        }
-                    }),
-                    headers: { 'Content-Type': 'application/json' },
-                }).then(x => x.json().then(c => console.log(c)).catch(x => console.log(x)));
+                callAutotask(JSON.stringify({
+                    signature: data,
+                    request: {
+                        nonce: forwarderNonce?.toNumber(),
+                        data: contract?.interface.encodeFunctionData('claimTwitterHandle', [userData?.userName, userData?.token, true])! as `0x${string}`,
+                        from: address!,
+                        to: STORK_CONTRACT_ADDRESS,
+                        gas: 1000000,
+                        value: 0
+                    }
+                }));
             }
         });
 
-    const { data: handleOfAddressData } = useContractRead({
-        address: STORK_CONTRACT_ADDRESS,
-        abi: storkABI,
-        functionName: "twitterHandleOfAddress",
-        chainId: polygonMumbai.id,
-        args: [address!],
-        enabled: isConnected && Boolean(address)
-    });
-
-    // If Twitter handle is already associated with the account, just call claim
-    const {
-        config: prepareClaimFundsConfig,
-        error: prepareClaimFundsError,
-        isError: isPrepareClaimFundsError,
-        isLoading: isPrepareClaimFundsLoading
-    } = usePrepareContractWrite({
-        address: STORK_CONTRACT_ADDRESS,
-        abi: storkABI,
-        functionName: 'claimFunds',
-        enabled: Boolean(userData?.token) && handleOfAddressData == userData?.userName,
-        overrides: {
-            gasLimit: BigNumber.from(1500000),
-            type: 0
-        }
-    });
-
-    const { data: writeClaimFundsData, write: writeClaimFunds, error: writeClaimFundsError, isError: isWriteClaimFundsError, isLoading: isWriteClaimFundsLoading } = useContractWrite(prepareClaimFundsConfig)
-    const { isLoading: isClaimFundsLoading, isSuccess: isClaimFundsSuccess } = useWaitForTransaction({
-        hash: writeClaimFundsData?.hash,
-    });
-
-    // If twitter account not associated, associate the handle and claim funds in one tx
-    const {
-        config: prepareClaimHandleConfig,
-        error: prepareClaimHandleError,
-        isError: isPrepareClaimHandleError,
-        isLoading: isPrepareClaimHandleLoading
-    } = usePrepareContractWrite({
-        address: STORK_CONTRACT_ADDRESS,
-        abi: storkABI,
-        functionName: 'claimTwitterHandle',
-        args: [userData?.userName, userData?.token, true],
-        enabled: Boolean(userData?.token) && handleOfAddressData !== userData?.userName,
-        overrides: {
-            gasLimit: BigNumber.from(1500000),
-            type: 0
-        }
-    });
-
-    const { data: writeClaimHandleData, write: writeClaimHandle, error: writeClaimHandleError, isError: isWriteClaimHandleError, isLoading: isWriteClaimHandleLoading } = useContractWrite(prepareClaimHandleConfig)
-    const { isLoading: isClaimHandleLoading, isSuccess: isClaimHandleSuccess } = useWaitForTransaction({
-        hash: writeClaimHandleData?.hash,
-    });
-
-
-    let isClaimSuccess = (isClaimHandleSuccess || isClaimFundsSuccess);
-    let isWriteClaimLoading = (isWriteClaimFundsLoading || isWriteClaimHandleLoading);
-    let isPrepareClaimLoading = (isPrepareClaimHandleLoading || isPrepareClaimFundsLoading);
-    let claimTxHash = writeClaimHandleData?.hash || writeClaimFundsData?.hash;
-    let isClaimError = isPrepareClaimHandleError || isWriteClaimHandleError || isPrepareClaimFundsError || isWriteClaimFundsError;
-    let claimError = prepareClaimHandleError || writeClaimHandleError || prepareClaimFundsError || writeClaimFundsError;
-    let canClaim = (Boolean(writeClaimFunds) || Boolean(writeClaimHandle)) && !isWriteClaimLoading && balance?.gt(0);
+    // Refetch after autotask call and before balance is zero
+    useInterval(async () => {
+        await refetchUserBalance();
+    }, isAutotaskSuccess && balance?.gt(0) ? 2000 : null);
 
     return (
         <>
             <Navbar />
-            <section className="py-12 sm:py-16 lg:pb-20">
+            <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="max-w-md mx-auto mt-8 text-center">
                         <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl">
                             <span>Hey 👋 </span>
-                            <span> @{userData.userName}</span>
+                            <span> @{userData?.userName}</span>
                         </h1>
                         <p className="mt-4 text-base font-medium text-gray-500 lg:text-lg">Welcome to Stork</p>
                     </div>
@@ -166,21 +108,15 @@ export default function Claim() {
                                         <p className="mt-1 text-xl font-medium text-gray-400">${balanceInUsd.toFixed(2)}</p>
                                     </div>
                                 </div>
-                                {balance?.gt(0) &&
+                                {(balance?.gt(0)) &&
                                     <div className="mt-5">
                                         <button
-                                            disabled={!canClaim}
+                                            disabled={isAutotaskLoading || isAutotaskSuccess}
                                             className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 border border-transparent rounded-lg bg-rose-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-600 hover:bg-rose-600"
                                             onClick={() => {
                                                 signTypedData?.();
-                                                // if (handleOfAddressData !== userData?.userName) {
-                                                //     writeClaimHandle?.();
-                                                // }
-                                                // else {
-                                                //     writeClaimFunds?.();
-                                                // }
                                             }}>
-                                            {isWriteClaimLoading ? 'Claiming' : isConnected ? 'Claim' : 'Connect a wallet to claim'}
+                                            {isSignLoading || isAutotaskLoading ? 'Claiming' : isConnected ? 'Claim' : 'Connect a wallet to claim'}
                                         </button>
                                     </div>
                                 }
@@ -188,28 +124,28 @@ export default function Claim() {
                         </div>
                     }
                 </div>
-            </section>
-            <div className='max-w-sm mx-auto mt-5 overflow-hidden bg-white shadow rounded-xl'>
-                {(isWriteClaimLoading || isPrepareClaimLoading) &&
-                    <InformationCard isLoading={true} text={isPrepareClaimLoading ? 'Confirm transaction with your wallet' : (isWriteClaimLoading ? 'Transaction in progress' : '')} type='wallet' />
-                }
-                {(isClaimError) && (
-                    <InformationCard isLoading={false} text={(claimError)?.message} type='error' />
-                )}
-                {isReadBalanceError &&
-                    <InformationCard isLoading={false} text={(readBalanceError)?.message} type='error' />
-                }
-                {isClaimSuccess && (
-                    <InformationCard isLoading={false} text={
-                        <span>
-                            Successfully claimed!&nbsp;
+                <div className='max-w-sm mx-auto mt-5 overflow-hidden bg-white shadow rounded-xl space-y-2'>
+                    {(isSignLoading || isAutotaskLoading) &&
+                        <InformationCard isLoading={true} text={isSignLoading ? 'Confirm transaction with your wallet' : (isAutotaskLoading ? 'Transaction in progress' : '')} type='wallet' />
+                    }
+                    {(isClaimError || isAutoTaskError || isReadBalanceError) && (
+                        <InformationCard isLoading={false} text={(claimError || autotaskError || readBalanceError)?.message} type='error' />
+                    )}
+                    {isClaimSuccess && isAutotaskSuccess && (
+                        <InformationCard isLoading={false} text={
                             <span>
-                                <a className='underline hover:underline-offset-4' href={`${polygonMumbai.blockExplorers.etherscan.url}/tx/${claimTxHash}`}>View in Explorer</a>
+                                Successfully claimed!&nbsp;
+                                <span>
+                                    <a target='_blank' className='underline hover:underline-offset-4' href={`${polygonMumbai.blockExplorers.etherscan.url}/tx/${autotaskResult?.parsedResult?.txHash}`}>View in Explorer</a>
+                                </span>
                             </span>
-                        </span>
-                    } type='wallet' />
-                )}
-            </div>
+                        } type='wallet' />
+                    )}
+                    {isAutotaskSuccess && balance?.gt(0) &&
+                        <InformationCard isLoading={true} text="Balance changes will be reflected soon." type='wallet' />
+                    }
+                </div>
+            </section>
         </>
     )
 }
