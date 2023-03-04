@@ -1,4 +1,5 @@
 import { LSK_USER_CRED } from '@/lib/constants';
+import { isMobile } from '@/lib/helpers/isMobile';
 import useTimeout from '@/lib/hooks/useTimeout';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -21,7 +22,12 @@ export default function Salon() {
                     console.log(`Response error ${responseParsed.error}`);
                 } else {
                     window.localStorage.setItem(LSK_USER_CRED, JSON.stringify(json));
-                    window.close();
+                    if (isMobile()) {
+                        router.push('/claim');
+                    }
+                    else {
+                        window.close();
+                    }
                 }
             };
 
