@@ -1,14 +1,14 @@
-import { GetClients } from "../lib/twitterClient";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Navbar from "@/components/navbar";
 import { useTwitterConnect } from "@/lib/hooks/useTwitterConnect";
-import { isMobile } from "@/lib/helpers/isMobile";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/dialog";
 import TwitterButton from "@/components/twitterButton";
 import Background from "@/components/background";
 import { Wallet, ChevronRight } from "lucide-react"
+import Faq from "@/components/faq";
+import Footer from "@/components/footer";
 
 export default function Home() {
   let router = useRouter();
@@ -38,7 +38,7 @@ export default function Home() {
           </DialogContent>
         </Dialog>
         <div className="relative">
-          <section className="py-12 sm:py-16 lg:py-20 lg:pb-36">
+          <section className="pt-12 sm:pt-16 lg:pt-20">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
               <div className="max-w-2xl mx-auto text-center">
                 <p className="mt-5 text-4xl font-bold leading-tight text-gray-900 sm:leading-tight sm:text-5xl lg:text-6xl lg:leading-tight font-pj">
@@ -47,7 +47,7 @@ export default function Home() {
                     <span className="bg-gradient-to-r from-[#44BCFF] via-[#FF44EC] to-[#FF675E] blur-lg filter opacity-30 w-full h-full absolute inset-0"></span>
                     <span className="relative"> anyone </span>
                   </span>
-                  with a twitter handle
+                  with a Twitter handle
                 </p>
 
                 <div className="px-8 sm:items-center sm:justify-center sm:px-0 sm:space-x-5 sm:flex mt-9">
@@ -93,7 +93,11 @@ export default function Home() {
               </div>
             </div>
           </section>
+          <section>
+            <Faq />
+          </section>
         </div>
+        <Footer />
       </Background>
     </>)
 };
