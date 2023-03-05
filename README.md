@@ -2,7 +2,7 @@
 
 :rocket: Leveraging Social Identity for Transacting Digital Assets
 
-Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and OpenZeppelin Meta transactions (with Defender Relayer and Autotask) for gaseless transfers. The latest contract is [deployed on Polygon Mumbai](https://mumbai.polygonscan.com/address/0x9cCD94e7A3247b47E4dd4040Df96de3Ee632213b). The app is available at [storkapp.xyz](https://storkapp.xyz).
+Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and OpenZeppelin Meta transactions (with Defender Relayer and Autotask) for gasless transfers. The latest contract is [deployed on Polygon Mumbai](https://mumbai.polygonscan.com/address/0x9cCD94e7A3247b47E4dd4040Df96de3Ee632213b). The app is available at [storkapp.xyz](https://storkapp.xyz).
 
 Stork's objective is to enable users to send digital assets to a Twitter handle that can be claimed by the owner of that handle in a trustless and non-custodial manner. This is accomplished through the use of Chainlink Functions, which map the Twitter handle to an on-chain address.
 
@@ -13,7 +13,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
 - [Stork - Alpha](#stork---alpha)
   - [Table of Contents](#table-of-contents)
   - [How it works?](#how-it-works)
-  - [Gaseless claims](#gaseless-claims)
+  - [Gasless claims](#gasless-claims)
   - [AccessToken privacy](#accesstoken-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
   - [Emmbeded JS code](#emmbeded-js-code)
@@ -50,7 +50,7 @@ function claimTwitterHandle(
  bool claimFundsImmediately) public
 ```
 
-Upon calling the Stork contract, the associated [Javascript code](/chainlink-functions/stork-twitter.js) is sent to the DON - nodes execute the code and [write the result to the contract](/chainlink-functions/contracts/Stork.sol#L75). Through this process, the contract verifies that the `msg.Sender` owns the `@elonmusk` handle and establishes the mapping between the handle and the on-chain address.
+Upon calling the Stork contract, the associated [Javascript code](/chainlink-functions/stork-twitter.js) is sent to the DON - nodes independently execute the code (which class Twitter API to validate the access token and extracts the user's Twitter handle) and [write the result to the contract](/chainlink-functions/contracts/Stork.sol#L75). Through this process, the contract verifies that the `msg.Sender` owns the `@elonmusk` handle and establishes the mapping between the handle and the on-chain address.
 
 Once this verification is complete, the user can claim the funds by calling the Stork contract.
 
@@ -63,9 +63,9 @@ The purpose of this function is to determine if `msg.Sender` has an associated T
 
 To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address, without requiring any further interaction with the contract.
 
-## Gaseless claims
+## Gasless claims
 
-The current process of claiming funds in the Stork system requires a minimum of one transaction, which necessitates paying gas fees. This approach presents a problem if the user has no `MATIC`. The issue is compounded as Stork is focused on making onboarding to crypto more accessible. To resolve this, [OpenZeppelin Defender Relayers](https://docs.openzeppelin.com/defender/relay) and [Meta transactions](https://docs.openzeppelin.com/contracts/4.x/api/metatx) can be leveraged. Additionally, it is important to note that the beta version of Chainlink Functions only permits whitelisted addresses to call DON network. Thankfully, with meta-transactions (because of Relayer), both problems can be addressed with a single solution.
+The current process of claiming funds in the Stork system requires a minimum of one transaction, which necessitates paying gas fees. This approach presents a problem if the user has no `MATIC`. The issue is compounded as Stork is focused on making onboarding to crypto more accessible. To resolve this, [OpenZeppelin Defender Relayers](https://docs.openzeppelin.com/defender/relay) and [Meta transactions](https://docs.openzeppelin.com/contracts/4.x/api/metatx) can be leveraged. Additionally, it is important to note that the beta version of Chainlink Functions only permits whitelisted addresses to call the DON network. Thankfully, with meta-transactions (because of Relayer), both problems can be addressed with a single solution.
 
 > Gasless meta-transactions offer users a more seamless experience, and potentially one where they don’t have to spend as much money to engage with the blockchain. This method gives users the option to sign a transaction for free and have it securely executed by a third party, with that other party paying the gas to execute the transaction.
 >
@@ -149,13 +149,13 @@ npx hardhat functions-deploy-stork --network mumbai --verify false
 ```
 
 3. [Create a new subscription and fund it](https://docs.chain.link/chainlink-functions/getting-started#configure-your-on-chain-resources)
-4. Add newly created Stork contract as functions consumer
+4. Add the newly created Stork contract as a functions consumer
 
 ```console
 npx hardhat functions-sub-add --subid SUBSCRIPTION_ID --contract STORK_CONTRACT_ADDRESS --network mumbai
 ```
 
-5. Send request to deployed Stork contract
+5. Send a request to deploy Stork contract
 
 ```console
 npx hardhat stork-request --contract STORK_CONTRACT_ADDRESS --accesstoken TWITTER_ACCESS_TOKEN --network mumbai --twitterhandle TWITTER_HANDLE
@@ -163,7 +163,7 @@ npx hardhat stork-request --contract STORK_CONTRACT_ADDRESS --accesstoken TWITTE
 
 6. Send request via Forwarder (Meta-transaction)
 
-Configure your second account to only sign transaction by adding `PRIVATE_KEY_2` to `.env` file. Then run:
+Configure your second account to only sign the transaction by adding `PRIVATE_KEY_2` to `.env` file. Then run:
 
 ```console
 npx hardhat stork-forwarder-request --contract STORK_CONTRACT_ADDRESS --accesstoken TWITTER_ACCESS_TOKEN --network mumbai --twitterhandle TWITTER_HANDLE
