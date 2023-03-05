@@ -145,7 +145,8 @@ string internal constant FUNCTION_CODE =
 The DON network operates by having its nodes execute a provided JavaScript code. To make the interaction between users and the Stork contract more transparent, we have [embedded the JavaScript code](/chainlink-functions/contracts/Stork.sol#L23) inside the smart contract. This allows users to easily view the code that will be executed by the DON nodes.
 
 ## Architecture
-TODO; Add diagram
+
+![Stork Architecture](/assets/Stork-Architecture.png)
 
 ## Conclusion
 
