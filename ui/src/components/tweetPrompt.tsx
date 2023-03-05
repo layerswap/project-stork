@@ -9,7 +9,7 @@ const TweetPrompt = (props: { handle: string | undefined, amount: string | undef
         }
     }, [props])
 
-    let tweetHref = `http://twitter.com/share?text=${text} %0ATo Claim&url=https://layerswap.io&hashtags=storkApp`
+    let tweetHref = `http://twitter.com/share?text=${text} %0ATo Claim&url=https://www.storkapp.xyz/&hashtags=storkApp`
 
     return (
         <div className="flex items-end justify-center w-full h-full min-h-[200px]">
