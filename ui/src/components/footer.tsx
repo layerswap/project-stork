@@ -6,7 +6,7 @@ const Footer = () => {
         <footer className="pb-12 bg-white sm:pb-16 lg:pb-20">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div className="max-w-lg mx-auto text-center">
-                    <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl xl:text-4xl font-pj">Let's connect!</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl xl:text-4xl font-pj">Let&apos;s connect!</h2>
                 </div>
 
                 <ul className="flex flex-col items-center justify-center mt-8 space-y-5 sm:mt-12 lg:mt-16 md:flex-row md:space-y-0 md:space-x-12">
