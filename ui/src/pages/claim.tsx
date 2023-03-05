@@ -13,6 +13,7 @@ import useInterval from '@/lib/hooks/useInterval';
 import Background from '@/components/background';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/popover';
 import { Fuel } from 'lucide-react';
+import JuberJabber from '@/components/JuberJabber';
 
 const types = {
     ForwardRequest: [
@@ -90,14 +91,16 @@ export default function Claim() {
     return (
         <Background>
             <Navbar />
-            <section className="py-12 sm:py-16 lg:py-20">
+            <section className="py-12">
                 <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="max-w-md mx-auto mt-8 text-center">
-                        <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl">
+                        <h1 className="text-4xl font-bold text-gray-900 lg:text-5xl">
                             <span>Hey 👋 </span>
                             <span> @{userData?.userName}</span>
                         </h1>
-                        <p className="mt-4 text-base font-medium text-gray-500 lg:text-lg">Welcome to Stork</p>
+                        <p className="mt-6 text-base font-medium text-gray-500 lg:text-lg">
+                            <JuberJabber />
+                        </p>
                     </div>
                     {
                         balance &&

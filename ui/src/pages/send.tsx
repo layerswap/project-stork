@@ -64,7 +64,7 @@ export default function Send() {
     return (
         <Background>
             <Navbar />
-            <section className="py-12 sm:py-16 lg:py-20">
+            <section className="py-12">
                 <div className="absolute inset-x-0 top-[-10rem] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[-20rem]">
                     <svg
                         className="relative left-[calc(50%-11rem)] -z-10 h-[21.1875rem] max-w-none -translate-x-1/2 rotate-[30deg] sm:left-[calc(50%-30rem)] sm:h-[42.375rem]"
@@ -96,13 +96,13 @@ export default function Send() {
                             key={handleChanged ? "withoutHandle" : "withHandle"}
                             animate={{ opacity: 1 }}
                             initial={{ opacity: 0 }}
-                            transition={{ delay: 0.1 }} className="text-4xl min-h-[80px] font-bold text-slate-600 flex flex-col items-center justify-center">
+                            transition={{ delay: 0.1 }} className="text-4xl font-bold text-slate-700 flex flex-col items-center justify-center">
                             <div className='flex items-center'>
-                                <span className='font-semibold'>Send&nbsp;</span>
+                                <span>Send&nbsp;</span>
                                 {numericAmount > 0 &&
                                     <FlipNumbers height={32} width={22} color="black" duration={1} background="transparent" play numbers={numericAmount.toString()} />
                                 }
-                                <span className='font-semibold'>{numericAmount > 0 && <span>&nbsp;</span>}{amountIsInUSD ? 'USD' : 'MATIC'}</span>
+                                <span>{numericAmount > 0 && <span>&nbsp;</span>}{amountIsInUSD ? 'USD' : 'MATIC'}</span>
                             </div>
                             <div className={handleChanged ? 'inline' : 'hidden'}><span className='font-semibold'>to&nbsp;</span><span className='text-black'>@{handle}</span></div>
                         </motion.div>
