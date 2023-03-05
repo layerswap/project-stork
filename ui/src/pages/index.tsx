@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/dialog";
 import TwitterButton from "@/components/twitterButton";
 import Background from "@/components/background";
-import { Wallet, ChevronRight } from "lucide-react"
+import { Wallet, Play } from "lucide-react"
 import Faq from "@/components/faq";
 import Footer from "@/components/footer";
 
@@ -23,19 +23,6 @@ export default function Home() {
     <>
       <Background>
         <Navbar />
-        <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
-          <DialogContent className="bg-gradient-to-br from-blue-50 to-white">
-            <div className="flex flex-col items-center sm:mx-12">
-              <p className="text-3xl mt-4 font-bold text-gray-800">
-                Sign-In
-              </p>
-              <p className="text-md mt-3 mb-8 font-bold text-gray-600">
-                Connect your Twitter account to get started
-              </p>
-              <TwitterButton />
-            </div>
-          </DialogContent>
-        </Dialog>
         <div className="relative">
           <section className="pt-12">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -77,18 +64,17 @@ export default function Home() {
                   </button>
                 </div>
 
-                <p className="mt-8 text-base text-gray-500 font-inter">Stork enables anyone on Twitter to leverage their social identity for transacting digital assets</p>
+                <button onClick={() => router.push("https://youtu.be/R1ZVhTwik2s")} className="mt-6 px-3 py-1 text-lg font-semibold leading-6 ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300 ">
+                  <span className="flex items-center py-2 gap-x-2 px-1">
+                    <Play />
+                    <span>
+                      Watch the video
+                    </span>
+                  </span>
+                </button>
               </div>
-
-              <div className="pb-1">
-                <div className="relative">
-                  <div className="absolute inset-0 h-2/3"></div>
-                  <div className="relative mx-auto">
-                    <div className="lg:max-w-6xl lg:mx-auto">
-                      <img className="transform scale-110" src="./hero.png" alt="" />
-                    </div>
-                  </div>
-                </div>
+              <div className="lg:max-w-6xl lg:mx-auto mt-6">
+                <img src="./hero.png" alt="" />
               </div>
             </div>
           </section>
@@ -98,5 +84,18 @@ export default function Home() {
         </div>
         <Footer />
       </Background>
+      <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
+        <DialogContent className="bg-gradient-to-br from-blue-50 to-white">
+          <div className="flex flex-col items-center sm:mx-12">
+            <p className="text-3xl mt-4 font-bold text-gray-800">
+              Sign-In
+            </p>
+            <p className="text-md mt-3 mb-8 font-bold text-gray-600">
+              Connect your Twitter account to get started
+            </p>
+            <TwitterButton />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>)
 };

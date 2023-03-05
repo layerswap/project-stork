@@ -37,7 +37,7 @@ export default function Sent() {
             <section className="py-12 sm:py-16 lg:py-20">
                 <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
                     <div className="text-center flex items-center flex-col">
-                        <h2 className="text-3xl font-bold text-gray-900">
+                        <h2 className="text-4xl font-bold text-gray-900 lg:text-5xl">
                             Yay!
                         </h2>
                         <p className="mt-4 text-base font-medium text-gray-500">

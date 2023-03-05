@@ -38,7 +38,7 @@ export default function Send() {
     const { open: openWalletConnect } = useWeb3Modal();
 
     const { chain } = useNetwork()
-    const { switchNetwork, pendingChainId } = useSwitchNetwork({
+    const { switchNetwork } = useSwitchNetwork({
         chainId: polygonMumbai.id,
     });
 

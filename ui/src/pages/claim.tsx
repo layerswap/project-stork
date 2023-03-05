@@ -1,4 +1,4 @@
-import { useContractRead, useAccount, useContract, useBalance } from 'wagmi';
+import { useContractRead, useAccount, useContract, useSwitchNetwork, useNetwork } from 'wagmi';
 import { forwarderAbi, storkABI } from '@/lib/ABIs/Stork';
 import { polygonMumbai } from 'wagmi/chains';
 import { BigNumber, ethers } from 'ethers';
@@ -11,10 +11,9 @@ import { useTwitterConnect } from '@/lib/hooks/useTwitterConnect';
 import { useAutoTask } from '@/lib/hooks/useAutoTask';
 import useInterval from '@/lib/hooks/useInterval';
 import Background from '@/components/background';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/popover';
-import { Fuel } from 'lucide-react';
 import JuberJabber from '@/components/JuberJabber';
 import { useWeb3Modal } from '@web3modal/react';
+import { useEffect } from 'react';
 
 const types = {
     ForwardRequest: [
@@ -40,6 +39,11 @@ export default function Claim() {
     const contract = useContract({
         abi: storkABI,
         address: STORK_CONTRACT_ADDRESS,
+    });
+
+    const { chain } = useNetwork()
+    const { switchNetwork } = useSwitchNetwork({
+        chainId: polygonMumbai.id,
     });
 
     const { data: forwarderNonce } = useContractRead({
@@ -98,7 +102,7 @@ export default function Claim() {
                     <div className="max-w-md mx-auto mt-8 text-center">
                         <h1 className="text-4xl font-bold text-gray-900 lg:text-5xl">
                             <span>Hey 👋 </span>
-                            <span> @{userData?.userName}</span>
+                            {userData?.userName ? <span>@{userData?.userName}</span> : "there"}
                         </h1>
                         <p className="mt-6 text-base font-medium text-gray-500 lg:text-lg">
                             <JuberJabber />
@@ -125,11 +129,19 @@ export default function Claim() {
                                                 if (!isConnected) {
                                                     openWalletConnect?.();
                                                 }
+                                                else if (chain?.id != polygonMumbai.id && isConnected) {
+                                                    if (switchNetwork != null) {
+                                                        switchNetwork(polygonMumbai.id);
+                                                    }
+                                                    else {
+                                                        alert("Couldn't change the network. Please change it manually from your wallet.");
+                                                    }
+                                                }
                                                 else {
                                                     signTypedData?.();
                                                 }
                                             }}>
-                                            {isSignLoading || isAutotaskLoading ? 'Claiming' : isConnected ? 'Claim' : 'Connect a wallet to claim'}
+                                            {isSignLoading || isAutotaskLoading ? 'Claiming' : !isConnected ? 'Connect a wallet to claim' : chain?.id != polygonMumbai.id ? "Change wallet network" : 'Claim'}
                                         </button>
                                     </div>
                                 }
