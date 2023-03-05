@@ -6,7 +6,7 @@ Stork is a project developed during the ETHDenver 2023 Hackathon that aims to en
 
 Stork's objective is to enable users to send digital assets to a Twitter handle that can be claimed by the owner of that handle in a trustless and non-custodial manner. This is accomplished through the use of Chainlink Functions, which map the Twitter handle to an on-chain address.
 
->:warning: It is important to note that Stork is a project developed during a hackathon, where the main objective was to rapidly create a working product. Hence, the smart contracts used in the project have not been audited and are not intended for deployment in production environments.
+>:warning: It is important to note that Stork is a project developed during a hackathon, where the main objective was to create a working product rapidly. Hence, the smart contracts used in the project have yet to be audited and are not intended for deployment in production environments.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
   - [How it works?](#how-it-works)
     - [Summary](#summary)
   - [Gasless claims](#gasless-claims)
-  - [AccessToken privacy](#accesstoken-privacy)
+  - [Access Token privacy](#access-token-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
   - [Emmbeded JS code](#emmbeded-js-code)
   - [Architecture](#architecture)
@@ -29,7 +29,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
 [TL;DR;](#summary)
 
 
-Bob wants to send `10 MATIC` to `@elonmusk`, however, it is not possible to send funds to a Twitter handle directly in a blockchain network. An external "authority" is needed to map the Twitter handle to an on-chain destination, that is, an address that can receive funds on the blockchain. This is where recently released ChainLink functions come into play:
+Bob wants to send `10 MATIC` to `@elonmusk`; however, it is not possible to send funds to a Twitter handle directly in a blockchain network. An external "authority" is needed to map the Twitter handle to an on-chain destination, that is, an address that can receive funds on the blockchain. This is where recently released ChainLink functions come into play:
 
 > Chainlink Functions provides your smart contracts with access to a trust-minimized compute infrastructure. Your smart contract sends your code to a Decentralized Oracle Network (DON), and each DON’s oracle runs the same code in a serverless environment. The DON aggregates all the independent runs and returns the final result to your smart contract. Your code can be anything from simple computation to fetching data from API providers. 
 > 
@@ -64,15 +64,15 @@ Once this verification is complete, the user can claim the funds by calling the 
 function claimFunds() public
 ```
 
-The purpose of this function is to determine if `msg.Sender` has an associated Twitter handle. If a handle is found, the function will proceed to release the previously locked funds to the specified handle.
+This function aims to determine if `msg.Sender` has an associated Twitter handle. If a handle is found, the function will release the previously locked funds to the specified handle.
 
 To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address, without requiring any further interaction with the contract.
 
 ### Summary
 
-The Stork contract acts as an intermediary between the sender and the receiver of digital assets. The sender initiates the transaction by providing the Twitter handle of the intended recipient to the Stork contract. The contract holds the funds in escrow until the receiver proves their ownership of the Twitter handle.
+The Stork contract is an intermediary between the sender and the receiver of digital assets. The sender initiates the transaction by providing the Twitter handle of the intended recipient to the Stork contract. The contract holds the funds in escrow until the receiver proves their ownership of the Twitter handle.
 
-When the receiver wishes to claim the funds, they authorize Twitter and provide an access token to the Chainlink decentralized oracle nodes (DON). The DON nodes independently verify the access token with the Twitter API and come to a consensus on the validity of the claim. Once consensus is reached, the DON nodes write back to the Stork contract the Twitter handle of the user. This provides proof to the contract that the sender claims the Twitter handle and is entitled to receive the funds. At this point, the funds are released to the intended recipient.
+When the receiver wishes to claim the funds, they authorize Twitter and provide an access token to the Chainlink decentralized oracle nodes (DON). The DON nodes independently verify the access token with the Twitter API and come to a consensus on the claim's validity. Once consensus is reached, the DON nodes write back to the Stork contract the Twitter handle of the user. This provides proof to the contract that the sender claims the Twitter handle and is entitled to receive the funds. At this point, the funds are released to the intended recipient.
 
 ## Gasless claims
 
@@ -97,7 +97,7 @@ Notice that Stork contract calls that involve DON interactions are called from R
 
 Currently, the Relayer covers the cost of gas fees for transactions. However, it is fairly easy to deduct these fees from the user who claims the funds and automatically transfer them to the Relayer.
 
-## AccessToken privacy
+## Access Token privacy
 
 [Stork.sol#L137](/chainlink-functions/contracts/Stork.sol#L137)
 ```solidity
