@@ -25,7 +25,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
 
 ## How it works?
 
-TL;DR [Go to Summary](#summary)
+[TL;DR;](#summary)
 
 
 Bob wants to send `10 MATIC` to `@elonmusk`, however, it is not possible to send funds to a Twitter handle directly in a blockchain network. An external "authority" is needed to map the Twitter handle to an on-chain destination, that is, an address that can receive funds on the blockchain. This is where recently released ChainLink functions come into play:
