@@ -123,6 +123,7 @@ export default function Send() {
                                         <div className="relative flex">
                                             <input value={amount ?? ''}
                                                 pattern="^[0-9]*[.,]?[0-9]*$"
+                                                inputMode='decimal'
                                                 onInput={(event: React.ChangeEvent<HTMLInputElement>) => { replaceComma(event); limitDecimalPlaces(event, 4) }}
                                                 onChange={e => {
                                                     if (/^[0-9]*[.,]?[0-9]*$/.test(e.target.value)) {
