@@ -14,6 +14,7 @@ import Background from '@/components/background';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/popover';
 import { Fuel } from 'lucide-react';
 import JuberJabber from '@/components/JuberJabber';
+import { useWeb3Modal } from '@web3modal/react';
 
 const types = {
     ForwardRequest: [
@@ -29,6 +30,7 @@ const types = {
 export default function Claim() {
     let { price: maticPrice } = useUSDprice('MATIC');
     let { data: userData, isConnected: twitterIsConnected } = useTwitterConnect();
+    let { open: openWalletConnect } = useWeb3Modal();
 
     const { isConnected, address } = useAccount();
     const { data: balance, error: readBalanceError, isError: isReadBalanceError, refetch: refetchUserBalance } = useReadBalance(userData?.userName);
@@ -120,7 +122,12 @@ export default function Claim() {
                                             disabled={isAutotaskLoading || isAutotaskSuccess || isSignLoading}
                                             className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 border border-transparent rounded-lg bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300 hover:bg-indigo-500 disabled:bg-slate-800"
                                             onClick={() => {
-                                                signTypedData?.();
+                                                if (!isConnected) {
+                                                    openWalletConnect?.();
+                                                }
+                                                else {
+                                                    signTypedData?.();
+                                                }
                                             }}>
                                             {isSignLoading || isAutotaskLoading ? 'Claiming' : isConnected ? 'Claim' : 'Connect a wallet to claim'}
                                         </button>
