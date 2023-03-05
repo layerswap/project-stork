@@ -18,8 +18,9 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
   - [AccessToken privacy](#accesstoken-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
   - [Emmbeded JS code](#emmbeded-js-code)
-  - [Run, deploy, and test](#run-deploy-and-test)
+  - [Architecture](#architecture)
   - [Conclusion](#conclusion)
+  - [Run, deploy, and test](#run-deploy-and-test)
   - [Contracts and Scripts](#contracts-and-scripts)
   - [Authors](#authors)
 
@@ -143,6 +144,13 @@ string internal constant FUNCTION_CODE =
 
 The DON network operates by having its nodes execute a provided JavaScript code. To make the interaction between users and the Stork contract more transparent, we have [embedded the JavaScript code](/chainlink-functions/contracts/Stork.sol#L23) inside the smart contract. This allows users to easily view the code that will be executed by the DON nodes.
 
+## Architecture
+TODO; Add diagram
+
+## Conclusion
+
+Stork is a promising project that aims to leverage social identity for transacting digital assets. While it is not ready for production use, it provides a solid foundation for further development and exploration of the use of Chainlink Functions for on-chain social identity verification. The project code can be found on the links provided below.
+
 ## Run, deploy, and test
 
 1. [Setup your environment](https://docs.chain.link/chainlink-functions/getting-started#set-up-your-environment)
@@ -180,10 +188,6 @@ npx hardhat stork-forwarder-request --contract STORK_CONTRACT_ADDRESS --accessto
 ```
 
 Make sure you have `Forwarder` contract address configured in [network-config](chainlink-functions/network-config.js).
-
-## Conclusion
-
-Stork is a promising project that aims to leverage social identity for transacting digital assets. While it is not ready for production use, it provides a solid foundation for further development and exploration of the use of Chainlink Functions for on-chain social identity verification. The project code can be found on the links provided below.
 
 ## Contracts and Scripts
 
