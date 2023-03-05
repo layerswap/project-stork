@@ -13,6 +13,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
 - [Stork - Alpha](#stork---alpha)
   - [Table of Contents](#table-of-contents)
   - [How it works?](#how-it-works)
+    - [Summary](#summary)
   - [Gasless claims](#gasless-claims)
   - [AccessToken privacy](#accesstoken-privacy)
   - [Expected Twitter Handle](#expected-twitter-handle)
@@ -23,6 +24,9 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
   - [Authors](#authors)
 
 ## How it works?
+
+TL;DR [Go to Summary](#summary)
+
 
 Bob wants to send `10 MATIC` to `@elonmusk`, however, it is not possible to send funds to a Twitter handle directly in a blockchain network. An external "authority" is needed to map the Twitter handle to an on-chain destination, that is, an address that can receive funds on the blockchain. This is where recently released ChainLink functions come into play:
 
@@ -62,6 +66,12 @@ function claimFunds() public
 The purpose of this function is to determine if `msg.Sender` has an associated Twitter handle. If a handle is found, the function will proceed to release the previously locked funds to the specified handle.
 
 To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address, without requiring any further interaction with the contract.
+
+### Summary
+
+The Stork contract acts as an intermediary between the sender and the receiver of digital assets. The sender initiates the transaction by providing the Twitter handle of the intended recipient to the Stork contract. The contract holds the funds in escrow until the receiver proves their ownership of the Twitter handle.
+
+When the receiver wishes to claim the funds, they authorize Twitter and provide an access token to the Chainlink decentralized oracle nodes (DON). The DON nodes independently verify the access token with the Twitter API and come to a consensus on the validity of the claim. Once consensus is reached, the DON nodes write back to the Stork contract the Twitter handle of the user. This provides proof to the contract that the sender claims the Twitter handle and is entitled to receive the funds. At this point, the funds are released to the intended recipient.
 
 ## Gasless claims
 
