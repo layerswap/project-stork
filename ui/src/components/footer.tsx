@@ -17,13 +17,13 @@ const Footer = () => {
                         </a>
                     </li>
                     <li>
-                        <a href='https://discord.com/invite/KhwYN35sHy' target='_blank' className="group hover:cursor-pointer px-4 py-3 rounded-lg  flex items-center text-gray-900">
+                        <a href='https://discord.com/invite/KhwYN35sHy' target='_blank' className="group hover:cursor-pointer px-4 py-3 rounded-lg flex items-center text-gray-900 transition-all duration-200 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
                             <Users />
                             <span className="ml-3 text-lg font-bold font-pj group-hover:underline"> Share memes with us </span>
                         </a>
                     </li>
                     <li>
-                        <a href='https://github.com/layerswap/project-stork' target='_blank' className="group hover:cursor-pointer px-4 py-3 rounded-lg  flex items-center text-gray-900">
+                        <a href='https://github.com/layerswap/project-stork' target='_blank' className="group hover:cursor-pointer px-4 py-3 rounded-lg flex items-center text-gray-900 transition-all duration-200 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
                             <Github />
                             <span className="ml-3 text-lg font-bold font-pj group-hover:underline"> Fork us </span>
                         </a>
