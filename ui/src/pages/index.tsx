@@ -25,20 +25,19 @@ export default function Home() {
         <Navbar />
         <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
           <DialogContent className="bg-gradient-to-br from-blue-50 to-white">
-            <div className="flex flex-col items-center mx-12">
-              <p className="w-auto h-8 text-black font-extrabold text-2xl sm:text-3xl">Stork</p>
-              <h1 className="text-2xl mt-4 font-bold text-gray-800 sm:text-xl lg:text-4xl">
-                Check your balance
-              </h1>
-              <h1 className="text-md mt-1 mb-8 font-bold text-gray-600">
-                Build your on-chain wealth
-              </h1>
+            <div className="flex flex-col items-center sm:mx-12">
+              <p className="text-3xl mt-4 font-bold text-gray-800">
+                Sign-In
+              </p>
+              <p className="text-md mt-3 mb-8 font-bold text-gray-600">
+                Connect your Twitter account to get started
+              </p>
               <TwitterButton />
             </div>
           </DialogContent>
         </Dialog>
         <div className="relative">
-          <section className="pt-12 sm:pt-16 lg:pt-20">
+          <section className="pt-12">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
               <div className="max-w-2xl mx-auto text-center">
                 <p className="mt-5 text-4xl font-bold leading-tight text-gray-900 sm:leading-tight sm:text-5xl lg:text-6xl lg:leading-tight font-pj">
