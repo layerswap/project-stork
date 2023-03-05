@@ -32,7 +32,7 @@ const Footer = () => {
                     {
                         links.map((link) => (
 
-                            <li className='flex justify-around bg-gray-100 group transition-all duration-200 hover:bg-gray-300 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 rounded-lg hover:cursor-pointer'>
+                            <li key={link.text} className='flex justify-around bg-gray-100 group transition-all duration-200 hover:bg-gray-300 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 rounded-lg hover:cursor-pointer'>
                                 <a href={link.link} target='_blank' className="px-4 py-3 flex items-center text-gray-900">
                                     {link.icon}
                                     <span className="ml-3 text-lg font-bold font-pj group-hover:underline">{link.text}</span>
