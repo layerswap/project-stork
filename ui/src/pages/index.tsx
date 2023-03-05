@@ -41,12 +41,12 @@ export default function Home() {
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
               <div className="max-w-2xl mx-auto text-center">
                 <p className="mt-5 text-4xl font-bold leading-tight text-gray-900 sm:leading-tight sm:text-5xl lg:text-6xl lg:leading-tight font-pj">
-                  Send $MATIC to
+                  Send $MATIC to&nbsp;
                   <span className="relative inline-flex sm:inline">
                     <span className="bg-gradient-to-r from-[#44BCFF] via-[#FF44EC] to-[#FF675E] blur-lg filter opacity-30 w-full h-full absolute inset-0"></span>
                     <span className="relative"> anyone </span>
                   </span>
-                  with a Twitter handle
+                  &nbsp;with a Twitter handle
                 </p>
 
                 <div className="px-8 sm:items-center sm:justify-center sm:px-0 sm:space-x-5 sm:flex mt-9">
