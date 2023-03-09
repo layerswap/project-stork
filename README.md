@@ -2,7 +2,7 @@
 
 :rocket: Leveraging Social Identity for Transacting Digital Assets
 
-Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and OpenZeppelin Meta transactions (with Defender Relayer and Autotask) for gasless transfers. The latest contract is [deployed on Polygon Mumbai](https://mumbai.polygonscan.com/address/0x9cCD94e7A3247b47E4dd4040Df96de3Ee632213b). The app is available at [storkapp.xyz](https://storkapp.xyz).
+Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and OpenZeppelin Meta transactions (with Defender Relayer and Autotask) for gasless transfers. The latest contract is [deployed on Polygon Mumbai](https://mumbai.polygonscan.com/address/0xb4f9962c8D56eed88eF94Ae8A8c903c223EeFc21). The app is available at [storkapp.xyz](https://storkapp.xyz).
 
 Stork's objective is to enable users to send digital assets to a Twitter handle that can be claimed by the owner of that handle in a trustless and non-custodial manner. This is accomplished through the use of Chainlink Functions, which map the Twitter handle to an on-chain address.
 

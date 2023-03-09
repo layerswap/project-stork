@@ -1,4 +1,4 @@
-const twitterAccessToken = args[0];
+const twitterAccessToken = secrets.accessToken;
 
 if (!twitterAccessToken) {
   throw Error('AccessToken is required.');
