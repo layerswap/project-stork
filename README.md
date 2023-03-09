@@ -2,7 +2,7 @@
 
 :rocket: Leveraging Social Identity for Transacting Digital Assets
 
-Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and OpenZeppelin Meta transactions (with Defender Relayer and Autotask) for gasless transfers. The latest contract is [deployed on Polygon Mumbai](https://mumbai.polygonscan.com/address/0xb4f9962c8D56eed88eF94Ae8A8c903c223EeFc21). The app is available at [storkapp.xyz](https://storkapp.xyz).
+Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and OpenZeppelin Meta transactions for gasless transfers. The latest contract is [deployed on Polygon Mumbai](https://mumbai.polygonscan.com/address/0xb4f9962c8D56eed88eF94Ae8A8c903c223EeFc21). The app is available at [storkapp.xyz](https://storkapp.xyz).
 
 Stork's objective is to enable users to send digital assets to a Twitter handle that can be claimed by the owner of that handle in a trustless and non-custodial manner. This is accomplished through the use of Chainlink Functions, which map the Twitter handle to an on-chain address.
 
@@ -76,7 +76,7 @@ When the receiver wishes to claim the funds, they authorize Twitter and provide 
 
 ## Gasless claims
 
-The current process of claiming funds in the Stork system requires a minimum of one transaction, which necessitates paying gas fees. This approach presents a problem if the user has no `MATIC`. The issue is compounded as Stork is focused on making onboarding to crypto more accessible. To resolve this, [OpenZeppelin Defender Relayers](https://docs.openzeppelin.com/defender/relay) and [Meta transactions](https://docs.openzeppelin.com/contracts/4.x/api/metatx) can be leveraged. Additionally, it is important to note that the beta version of Chainlink Functions only permits whitelisted addresses to call the DON network. Thankfully, with meta-transactions (because of Relayer), both problems can be addressed with a single solution.
+The current process of claiming funds in the Stork system requires a minimum of one transaction, which necessitates paying gas fees. This approach presents a problem if the user has no `MATIC`. The issue is compounded as Stork is focused on making onboarding to crypto more accessible. To resolve this, [Meta transactions](https://docs.openzeppelin.com/contracts/4.x/api/metatx) and Relayers can be leveraged. Additionally, it is important to note that the beta version of Chainlink Functions only permits whitelisted addresses to call the DON network. Thankfully, with meta-transactions (because of Relayer), both problems can be addressed with a single solution.
 
 > Gasless meta-transactions offer users a more seamless experience, and potentially one where they don’t have to spend as much money to engage with the blockchain. This method gives users the option to sign a transaction for free and have it securely executed by a third party, with that other party paying the gas to execute the transaction.
 >
@@ -87,7 +87,7 @@ The current process of claiming funds in the Stork system requires a minimum of 
 This is how the process will look like with meta transactions:
 
 1. The user will sign a transaction message.
-2. The signed transaction message will be sent to the OpenZeppelin Defender Relayer.
+2. The signed transaction message will be sent to the [Relayer](/ui/src/pages/api/relayTransaction.ts).
 3. The Relayer will send the signed transaction to the `MinimalForwarder` and pay the gas fees on behalf of the user.
 4. The `MinimalForwarder` will extract the signed transaction and call the actual Stork contract.
 5. Stork contract will call the DON network ... and do the rest as explained above
@@ -194,7 +194,7 @@ Make sure you have `Forwarder` contract address configured in [network-config](c
 
 - Stork Contract [chainlink-functions/contracts/Stork.sol](/chainlink-functions/contracts/Stork.sol)
 - Stork Javascript Chainlink Function [chainlink-functions/stork-twitter.js](/chainlink-functions/stork-twitter.js)
-- OpenZeppelin Defender Auto Task for Relayer [chainlink-functions/autotask/relay/index.js](/chainlink-functions/autotask/relay/index.js)
+- Relayer [/ui/src/pages/api/relayTransaction.ts](/ui/src/pages/api/relayTransaction.ts)
 - Next.js [UI App](/ui/)
 - Helping scripts 
   - [Deploy Stork](/chainlink-functions/tasks/Functions-client/deployClient.js#L54)
