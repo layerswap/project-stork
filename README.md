@@ -135,7 +135,7 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ![Stork Architecture](/assets/Stork-Architecture.png)
 
 ## Demo
-[![StorkApp Youtube Video](https://img.youtube.com/vi/R1ZVhTwik2s/0.jpg)](https://www.youtube.com/watch?v=R1ZVhTwik2s)
+StorkApp demo showcases how to send digital assets to a Twitter handle in a trustless and non-custodial manner. Check it out out simple is that! [Whatch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
 
 ## Roadmap
 
