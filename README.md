@@ -145,7 +145,7 @@ StorkApp demo showcases how to send digital assets to a Twitter handle in a trus
 - [ ] Improve privacy of transactions
 - [ ] Code cleanup, restructure repository
 - [ ] Add support of ERC20 tokens
-- [ ] Reclaim fees that was paid for claim transaction
+- [ ] Reclaim fees to relayer, that was paid for claim transaction
 - [ ] Allow sender to reclaim sent funds
 - [ ] Abstract awaiy smart contract to use different social identities
 - [ ] Add support of other social identities (Reddit, Facebook, Mastordom ...)
