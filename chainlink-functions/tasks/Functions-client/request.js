@@ -179,7 +179,7 @@ task("functions-request", "Initiates a request from an Functions client contract
             if (!eventSuccess) {
               console.log(
                 "Error encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
+                "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
               )
               return resolve()
             }
@@ -220,7 +220,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     })
   })
 
-  task("stork-request", "Initiates a request from an Functions client contract")
+task("stork-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the client contract to call")
   .addParam("accesstoken", "Twitter oAuth Access token")
   .addParam("twitterhandle", "Expected Twitter handle")
@@ -344,7 +344,7 @@ task("functions-request", "Initiates a request from an Functions client contract
             if (!eventSuccess) {
               console.log(
                 "Error encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
+                "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
               )
               return resolve()
             }
@@ -355,9 +355,7 @@ task("functions-request", "Initiates a request from an Functions client contract
           }
         }
       )
-      
-      console.log(requestConfig);
-        
+
       var encryptedAccessToken = "0x" +
         (await (0, encryptSecrets_1.encryptWithSignature)(
           requestConfig.walletPrivateKey,
@@ -367,15 +365,11 @@ task("functions-request", "Initiates a request from an Functions client contract
           })
         ));
 
-        var encryptedAccessToken2 = "0x43b0a069e1cf8b41e8d14f1ae37c397b02656dd9bb06a5365a3228e11efeed29c5339dbd523dc9e12804ec0baf1625ee57153f5e393ac77b60e9282c616b9cb3bdc14fa293e4a3ffe90186438693d95bb79a1b034e7f58d8e3c2f901d1c1033067416d077fe9a342a19b5ea0c4e1a5039c60296a473d16711be739a235105da95a783c4d65f5de5d052626dce5743504fa436aef0845b43b5f3c1e9417d1a8fc040693a76fd58946dd97a3fb426a41a170ea6c5ae60b0687d260c33324523e2704e1d08be74cee2d26850f8301d8a209eda1c73c1e61790e4a8d2b7fe7f57f67b57c38158f51941beb185c19f3a548a8507b00f1de5aa57ff609fd0327a143fb2647baf139da5ebd51e4091a8cae92e1c536395e0c6483030bc8719d0d3b1d5863a951b43043ad3e05ae7e0a0bf44e1a5677deceaa84c20c07cd30f566764baa059cd50dbfcbbf97e25d0181c3c0bfb531848595096f524777a28a54f806e4af5a25d246a54083e18da9135d97c8ad26cf";
-
-      //var encryptedAccessToken = "0x5df5962e547a75f623b0a1432f322e5f02d0ca882d0b33dd409e8c7e435b8dc62166841e0ca5c149d7952dc72c7b67ea4721123b19bfa6947b62fc56ef99d693d4f64f523c297284dcf4784513e3f8184270d8dccdf88c01fa260220ef7acf0d89d04846c35e1701166e53f31226295a0c1f4b8d8a92bc94fb8994cf781b2e6cc9bb252886acb07eef8f9dfeb47f6bd31c0dbe457e360a3d7bdf8316d844d4d037579ae9ffa9f085f76cabd57cbcaed32066907ea4603dca3f9f47992d27d90f37d37a1f646ea282b712fc84a0d084eee0673e86b210af5aa033b394157802f707e707ab7578501225e4cb72313e6b3a19afaa7576552eda20e24bffa76d0ed491e825ba486afb2261e178e2157d6f611b5a2c5d60cd24c031603a468eec1345154959d2bdcd223a9f976594d9d6dd10da4b9d2e455d64cb8b5c65500cfb893231c1449b9dbc704984c5a7a44189125c3e1b4a43160ffa0581e3f24669efb217c1";
-
       // Initiate the on-chain request after all listeners are initialized
       console.log(`\nRequesting new data for Stork contract ${contractAddr} on network ${network.name}`)
       const requestTx = await clientContract.claimTwitterHandle(
         expectedTwitterHandle,
-        encryptedAccessToken2,
+        encryptedAccessToken,
         claimFundsImmediately,
         overrides
       )
@@ -397,7 +391,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     })
   })
 
-  task("stork-forwarder-request", "Initiates a request from an Functions client contract")
+task("stork-forwarder-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the Stork contract to call")
   .addParam("accesstoken", "Twitter oAuth Access token")
   .addParam("twitterhandle", "Expected Twitter handle")
@@ -458,15 +452,15 @@ task("functions-request", "Initiates a request from an Functions client contract
           console.log(Buffer.from(msg, "hex").toString())
         }
       })
-      
+
       var encryptedAccessToken = "0x" +
-      (await (0, encryptSecrets_1.encryptWithSignature)(
-        requestConfig.walletPrivateKey,
-        requestConfig.DONPublicKey,
-        JSON.stringify({
-          accessToken
-        })
-      ));
+        (await (0, encryptSecrets_1.encryptWithSignature)(
+          requestConfig.walletPrivateKey,
+          requestConfig.DONPublicKey,
+          JSON.stringify({
+            accessToken
+          })
+        ));
 
       const accounts = await ethers.getSigners();
       const signer = accounts[1];
@@ -482,7 +476,7 @@ task("functions-request", "Initiates a request from an Functions client contract
         gasLimit: 10000000,
       }
       const requestTx = await forwarderContract.execute(request, signature, overrides);
-      
+
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
         () =>
@@ -490,7 +484,7 @@ task("functions-request", "Initiates a request from an Functions client contract
             "A response not received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
           ),
         300_000
-            )
+      )
 
       console.log(
         `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`
