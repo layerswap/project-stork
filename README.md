@@ -4,7 +4,7 @@
 
 Stork is a project developed during the ETHDenver 2023 Hackathon that aims to enable anyone on Twitter to leverage their social identity for transacting digital assets. It utilizes newly released Chainlink Functions for Twitter identity verification and OpenZeppelin Meta transactions for gasless transfers. The latest contract is [deployed on Polygon Mumbai](https://mumbai.polygonscan.com/address/0xb4f9962c8D56eed88eF94Ae8A8c903c223EeFc21). The app is available at [storkapp.xyz](https://storkapp.xyz).
 
-Stork's objective is to enable users to send digital assets to a Twitter handle that can be claimed by the owner of that handle in a trustless and non-custodial manner. This is accomplished through the use of Chainlink Functions, which map the Twitter handle to an on-chain address.
+Stork's objective is to enable users to send digital assets to a Twitter handle that can be claimed by the owner of that handle in a trust-minimized and non-custodial manner. This is accomplished through the use of Chainlink Functions, which map the Twitter handle to an on-chain address.
 
 >:warning: It is important to note that Stork is a project developed during a hackathon, where the main objective was to create a working product rapidly. Hence, the smart contracts used in the project have yet to be audited and are not intended for deployment in production environments.
 
@@ -135,7 +135,7 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ![Stork Architecture](/assets/Stork-Architecture.png)
 
 ## Demo
-StorkApp demo showcases how to send digital assets to a Twitter handle in a trustless and non-custodial manner. Check it out out simple is that! [Whatch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
+Check it out out simple is using Stork! [Whatch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
 
 ## Roadmap
 
