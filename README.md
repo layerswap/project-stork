@@ -16,9 +16,10 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
     - [Summary](#summary)
   - [Gasless claims](#gasless-claims)
   - [Access Token privacy](#access-token-privacy)
-  - [Expected Twitter Handle](#expected-twitter-handle)
   - [Emmbeded JS code](#emmbeded-js-code)
   - [Architecture](#architecture)
+  - [Demo](#demo)
+  - [Roadmap](#roadmap)
   - [Conclusion](#conclusion)
   - [Run, deploy, and test](#run-deploy-and-test)
   - [Contracts and Scripts](#contracts-and-scripts)
@@ -51,7 +52,7 @@ To claim the assets transferred to the `@elonmusk` handle, `@elonmusk` must firs
 ```solidity
 function claimTwitterHandle(
  string calldata expectedTwitterHandle,
- string calldata accessToken,
+ string calldata encryptedAccessToken,
  bool claimFundsImmediately) public
 ```
 
@@ -103,7 +104,7 @@ Currently, the Relayer covers the cost of gas fees for transactions. However, it
 ```solidity
 function claimTwitterHandle(
  string calldata expectedTwitterHandle,
- >>> string calldata accessToken, <<<<
+ >>> string calldata encryptedAccessToken, <<<<
  bool claimFundsImmediately) public
 ```
 
@@ -118,13 +119,11 @@ To address this issue, we propose a solution that encrypts the access token befo
  
 While this solution offers improved security, it is currently not possible to implement due to the beta status of Chainlink functions, which currently only support vanilla javascript functions. However, once basic cryptographic functionality is added, this solution can be implemented to enhance the security and privacy of users.
 
-## Expected Twitter Handle
-
 [Stork.sol#L137](/chainlink-functions/contracts/Stork.sol#L137)
 ```solidity
 function claimTwitterHandle(
  >>> string calldata expectedTwitterHandle, <<<
- string calldata accessToken,
+ string calldata encryptedAccessToken,
  bool claimFundsImmediately) public
 ```
 
@@ -147,6 +146,26 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ## Architecture
 
 ![Stork Architecture](/assets/Stork-Architecture.png)
+
+## Demo
+
+[![StorkApp Youtube Video](https://img.youtube.com/vi/R1ZVhTwik2s/0.jpg)](https://www.youtube.com/watch?v=R1ZVhTwik2s)
+
+## Roadmap
+
+- [x] Implement MVP (for ETHDenver Hackathon)
+- [x] Make claim transactions gasless
+- [x] Make AccessToken encrypted
+- [ ] Improve privacy of transactions
+- [ ] Code cleanup, restructure repository
+- [ ] Add support of ERC20 tokens
+- [ ] Reclaim fees that was paid for claim transaction
+- [ ] Abstract awaiy smart contract to use different social identities
+- [ ] Add support of other social identities (Reddit, Facebook, Mastordom ...)
+- [ ] Initial Security review/audit
+- [ ] Improve Relayer to have a queue of transactions
+- [ ] Write and publish whitepaper
+- [ ] Public Beta launch
 
 ## Conclusion
 
