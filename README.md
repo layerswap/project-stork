@@ -144,8 +144,9 @@ Check it out out simple is using Stork! [Whatch on Youtube](https://www.youtube.
 - [x] Make AccessToken encrypted
 - [ ] Improve privacy of transactions
 - [ ] Code cleanup, restructure repository
-- [ ] Add support of ERC20 tokens
+- [ ] Add support of ETH, ERC20 tokens
 - [ ] Reclaim fees to relayer, that was paid for claim transaction
+- [ ] Implement protocol fees
 - [ ] Allow sender to reclaim sent funds
 - [ ] Abstract awaiy smart contract to use different social identities
 - [ ] Add support of other social identities (Reddit, Facebook, Mastordom ...)
