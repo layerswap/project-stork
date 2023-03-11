@@ -135,7 +135,7 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ![Stork Architecture](/assets/Stork-Architecture.png)
 
 ## Demo
-Check it out out simple is using Stork! [Whatch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
+Check out how simple is using Stork! [Whatch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
 
 ## Roadmap
 
