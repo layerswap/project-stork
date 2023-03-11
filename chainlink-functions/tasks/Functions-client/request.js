@@ -3,6 +3,8 @@ const { generateRequest } = require("./buildRequestJSON")
 const { VERIFICATION_BLOCK_CONFIRMATIONS, networkConfig } = require("../../network-config")
 const { signMetaTxRequest } = require("./../signer")
 const readline = require("readline-promise").default
+const encryptSecrets_1 = require("./../../FunctionsSandboxLibrary/encryptSecrets")
+
 
 task("functions-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the client contract to call")
@@ -177,7 +179,7 @@ task("functions-request", "Initiates a request from an Functions client contract
             if (!eventSuccess) {
               console.log(
                 "Error encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
+                "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
               )
               return resolve()
             }
@@ -218,7 +220,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     })
   })
 
-  task("stork-request", "Initiates a request from an Functions client contract")
+task("stork-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the client contract to call")
   .addParam("accesstoken", "Twitter oAuth Access token")
   .addParam("twitterhandle", "Expected Twitter handle")
@@ -255,6 +257,12 @@ task("functions-request", "Initiates a request from an Functions client contract
     const overrides = {
       gasLimit: 1500000,
     }
+
+    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
+    const DONPublicKey = await oracle.getDONPublicKey()
+    // Remove the preceding 0x from the DON public key
+    requestConfig.DONPublicKey = DONPublicKey.slice(2)
 
     // Check that the subscription is valid
     let subInfo
@@ -336,7 +344,7 @@ task("functions-request", "Initiates a request from an Functions client contract
             if (!eventSuccess) {
               console.log(
                 "Error encountered when calling fulfillRequest in client contract.\n" +
-                  "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
+                "Ensure the fulfillRequest function in the client contract is correct and the --gaslimit is sufficient."
               )
               return resolve()
             }
@@ -347,11 +355,21 @@ task("functions-request", "Initiates a request from an Functions client contract
           }
         }
       )
+
+      var encryptedAccessToken = "0x" +
+        (await (0, encryptSecrets_1.encryptWithSignature)(
+          requestConfig.walletPrivateKey,
+          requestConfig.DONPublicKey,
+          JSON.stringify({
+            accessToken
+          })
+        ));
+
       // Initiate the on-chain request after all listeners are initialized
       console.log(`\nRequesting new data for Stork contract ${contractAddr} on network ${network.name}`)
       const requestTx = await clientContract.claimTwitterHandle(
         expectedTwitterHandle,
-        accessToken,
+        encryptedAccessToken,
         claimFundsImmediately,
         overrides
       )
@@ -373,7 +391,7 @@ task("functions-request", "Initiates a request from an Functions client contract
     })
   })
 
-  task("stork-forwarder-request", "Initiates a request from an Functions client contract")
+task("stork-forwarder-request", "Initiates a request from an Functions client contract")
   .addParam("contract", "Address of the Stork contract to call")
   .addParam("accesstoken", "Twitter oAuth Access token")
   .addParam("twitterhandle", "Expected Twitter handle")
@@ -410,6 +428,12 @@ task("functions-request", "Initiates a request from an Functions client contract
     )
     const registry = await RegistryFactory.attach(registryAddress)
 
+    const unvalidatedRequestConfig = require("../../Functions-request-config.js")
+    const requestConfig = getRequestConfig(unvalidatedRequestConfig)
+    const DONPublicKey = await oracle.getDONPublicKey()
+    // Remove the preceding 0x from the DON public key
+    requestConfig.DONPublicKey = DONPublicKey.slice(2)
+
     // Use a promise to wait & listen for the fulfillment event before returning
     await new Promise(async (resolve, reject) => {
       let requestId
@@ -429,6 +453,15 @@ task("functions-request", "Initiates a request from an Functions client contract
         }
       })
 
+      var encryptedAccessToken = "0x" +
+        (await (0, encryptSecrets_1.encryptWithSignature)(
+          requestConfig.walletPrivateKey,
+          requestConfig.DONPublicKey,
+          JSON.stringify({
+            accessToken
+          })
+        ));
+
       const accounts = await ethers.getSigners();
       const signer = accounts[1];
 
@@ -436,14 +469,14 @@ task("functions-request", "Initiates a request from an Functions client contract
       const { request, signature } = await signMetaTxRequest(signer.provider, forwarderContract, {
         from: signer.address,
         to: clientContract.address,
-        data: clientContract.interface.encodeFunctionData('claimTwitterHandle', [expectedTwitterHandle, accessToken, claimFundsImmediately]),
+        data: clientContract.interface.encodeFunctionData('claimTwitterHandle', [expectedTwitterHandle, encryptedAccessToken, claimFundsImmediately]),
       });
 
       const overrides = {
         gasLimit: 10000000,
       }
       const requestTx = await forwarderContract.execute(request, signature, overrides);
-      
+
       // If a response is not received within 5 minutes, the request has failed
       setTimeout(
         () =>
@@ -451,7 +484,7 @@ task("functions-request", "Initiates a request from an Functions client contract
             "A response not received within 5 minutes of the request being initiated and has been canceled. Your subscription was not charged. Please make a new request."
           ),
         300_000
-            )
+      )
 
       console.log(
         `Waiting ${VERIFICATION_BLOCK_CONFIRMATIONS} blocks for transaction ${requestTx.hash} to be confirmed...`

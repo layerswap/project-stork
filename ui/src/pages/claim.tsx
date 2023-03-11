@@ -2,18 +2,18 @@ import { useContractRead, useAccount, useContract, useSwitchNetwork, useNetwork 
 import { forwarderAbi, storkABI } from '@/lib/ABIs/Stork';
 import { polygonMumbai } from 'wagmi/chains';
 import { BigNumber, ethers } from 'ethers';
-import { DEFENDER_URL, STORK_CONTRACT_ADDRESS, STORK_FORWARDER_CONTRACT_ADDRESS } from '@/lib/constants';
+import { DEFENDER_ENCRYPT_URL, DEFENDER_RELAY_URL, STORK_CONTRACT_ADDRESS, STORK_FORWARDER_CONTRACT_ADDRESS } from '@/lib/constants';
 import { useSignTypedData } from 'wagmi'
 import Navbar from '@/components/navbar';
 import { useUSDprice } from '@/lib/hooks/swr/usePrice';
 import InformationCard from '@/components/informationCard';
 import { useTwitterConnect } from '@/lib/hooks/useTwitterConnect';
-import { useAutoTask } from '@/lib/hooks/useAutoTask';
+import { AutoTaskResult, useAutoTask } from '@/lib/hooks/useAutoTask';
 import useInterval from '@/lib/hooks/useInterval';
 import Background from '@/components/background';
 import JuberJabber from '@/components/JuberJabber';
 import { useWeb3Modal } from '@web3modal/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const types = {
     ForwardRequest: [
@@ -55,35 +55,27 @@ export default function Claim() {
         enabled: Boolean(address) && isConnected,
     });
 
-    const { data: autotaskResult, call: callAutotask, isError: isAutoTaskError, isLoading: isAutotaskLoading, error: autotaskError, isSuccess: isAutotaskSuccess } = useAutoTask(DEFENDER_URL);
+    const { data: autotasEncryptedResult, call: callEncrypteAutotask, isError: isEncryptAutoTaskError, isLoading: isEncryptAutotaskLoading, error: encryptAutotaskError, isSuccess: isEncryptAutotaskSuccess } = useAutoTask(DEFENDER_ENCRYPT_URL);
+
+    const { data: autotaskResult, call: callAutotask, isError: isAutoTaskError, isLoading: isAutotaskLoading, error: autotaskError, isSuccess: isAutotaskSuccess } = useAutoTask(DEFENDER_RELAY_URL);
+
+    const autotaskResultRef = useRef<AutoTaskResult|null>(null)
 
     const { isError: isClaimError, error: claimError, isLoading: isSignLoading, isSuccess: isClaimSuccess, signTypedData, isIdle } =
         useSignTypedData({
-            domain: {
-                chainId: polygonMumbai.id,
-                name: 'MinimalForwarder',
-                version: '0.0.1',
-                verifyingContract: STORK_FORWARDER_CONTRACT_ADDRESS,
-            },
-            types,
-            value: {
-                nonce: forwarderNonce!,
-                data: contract?.interface.encodeFunctionData('claimTwitterHandle', [userData?.userName ?? '', userData?.token ?? '', true]) as `0x${string}`,
-                from: address!,
-                to: STORK_CONTRACT_ADDRESS,
-                gas: BigNumber.from(1000000),
-                value: BigNumber.from(0)
-            },
             onSuccess: (data, variable) => {
                 callAutotask(JSON.stringify({
                     signature: data,
                     request: {
                         nonce: forwarderNonce?.toNumber(),
-                        data: contract?.interface.encodeFunctionData('claimTwitterHandle', [userData?.userName, userData?.token, true])! as `0x${string}`,
+                        data: contract?.interface.encodeFunctionData('claimTwitterHandle', [userData?.userName, autotaskResultRef.current?.encryptedAccessToken || "0x", true])! as `0x${string}`,
                         from: address!,
                         to: STORK_CONTRACT_ADDRESS,
                         gas: 1000000,
                         value: 0
+                    },
+                    test: {
+                        encrypted: autotaskResultRef.current?.encryptedAccessToken
                     }
                 }));
             }
@@ -123,9 +115,9 @@ export default function Claim() {
                                 {(balance?.gt(0)) &&
                                     <div className="mt-5">
                                         <button
-                                            disabled={isAutotaskLoading || isAutotaskSuccess || isSignLoading}
+                                            disabled={isAutotaskLoading || isAutotaskSuccess || isSignLoading || isEncryptAutotaskLoading}
                                             className="inline-flex items-center justify-center w-full px-6 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-200 border border-transparent rounded-lg bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300 hover:bg-indigo-500 disabled:bg-slate-800"
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 if (!isConnected) {
                                                     openWalletConnect?.();
                                                 }
@@ -138,10 +130,30 @@ export default function Claim() {
                                                     }
                                                 }
                                                 else {
-                                                    signTypedData?.();
+                                                    let encryptedAccessToken = await callEncrypteAutotask?.(JSON.stringify({ accessToken: userData?.token }));
+                                                    if(encryptedAccessToken && encryptedAccessToken.encryptedAccessToken){
+                                                        autotaskResultRef.current = encryptedAccessToken
+                                                        signTypedData?.({
+                                                            domain: {
+                                                                chainId: polygonMumbai.id,
+                                                                name: 'MinimalForwarder',
+                                                                version: '0.0.1',
+                                                                verifyingContract: STORK_FORWARDER_CONTRACT_ADDRESS,
+                                                            },
+                                                            types,
+                                                            value: {
+                                                                nonce: forwarderNonce!,
+                                                                data: contract?.interface.encodeFunctionData('claimTwitterHandle', [userData?.userName ?? '', autotaskResultRef.current?.encryptedAccessToken || "0x", true]) as `0x${string}`,
+                                                                from: address!,
+                                                                to: STORK_CONTRACT_ADDRESS,
+                                                                gas: BigNumber.from(1000000),
+                                                                value: BigNumber.from(0)
+                                                            }
+                                                        });
+                                                    }
                                                 }
                                             }}>
-                                            {isSignLoading || isAutotaskLoading ? 'Claiming' : !isConnected ? 'Connect a wallet to claim' : chain?.id != polygonMumbai.id ? "Change wallet network" : 'Claim'}
+                                            {isSignLoading || isAutotaskLoading || isEncryptAutotaskLoading ? 'Claiming' : !isConnected ? 'Connect a wallet to claim' : chain?.id != polygonMumbai.id ? "Change wallet network" :  'Claim'}
                                         </button>
                                     </div>
                                 }
@@ -150,18 +162,18 @@ export default function Claim() {
                     }
                 </div>
                 <div className='max-w-sm mx-auto mt-5 overflow-hidden bg-white shadow rounded-xl space-y-2'>
-                    {(isSignLoading || isAutotaskLoading) &&
-                        <InformationCard isLoading={true} text={isSignLoading ? 'Confirm transaction with your wallet' : (isAutotaskLoading ? 'Transaction in progress' : '')} type='wallet' />
+                    {(isSignLoading || isAutotaskLoading || isEncryptAutotaskLoading) &&
+                        <InformationCard isLoading={true} text={isSignLoading ? 'Confirm transaction with your wallet' : (isAutotaskLoading ? 'Transaction in progress' : (isEncryptAutotaskLoading ? 'Preparing Transaction' : ""))} type='wallet' />
                     }
-                    {(isClaimError || isAutoTaskError || isReadBalanceError) && (
-                        <InformationCard isLoading={false} text={(claimError || autotaskError || readBalanceError)?.message} type='error' />
+                    {(isClaimError || isAutoTaskError || isReadBalanceError || isEncryptAutoTaskError) && (
+                        <InformationCard isLoading={false} text={(claimError || autotaskError || encryptAutotaskError || readBalanceError)?.message} type='error' />
                     )}
                     {isClaimSuccess && isAutotaskSuccess && (
                         <InformationCard isLoading={false} text={
                             <span>
                                 Successfully claimed!&nbsp;
                                 <span>
-                                    <a target='_blank' className='underline hover:underline-offset-4' href={`${polygonMumbai.blockExplorers.etherscan.url}/tx/${autotaskResult?.parsedResult?.txHash}`}>View in Explorer</a>
+                                    <a target='_blank' className='underline hover:underline-offset-4' href={`${polygonMumbai.blockExplorers.etherscan.url}/tx/${autotasEncryptedResult?.txHash}`}>View in Explorer</a>
                                 </span>
                             </span>
                         } type='wallet' />

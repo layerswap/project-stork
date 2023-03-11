@@ -23,7 +23,7 @@ contract Stork is FunctionsClient, ConfirmedOwner, ERC2771Context {
   uint64 internal constant SUBSCRIPTION_ID = 159;
   uint32 internal constant GAS_LIMIT = 300000;
   string internal constant FUNCTION_CODE =
-    "const twitterAccessToken = args[0];\n"
+    "const twitterAccessToken = secrets.accessToken;\n"
     "if (!twitterAccessToken) {\n"
     "  throw Error('AccessToken is required.');\n"
     "}\n"
@@ -132,20 +132,21 @@ contract Stork is FunctionsClient, ConfirmedOwner, ERC2771Context {
    * @notice Claims twitter handle to sender.
    *
    * @param expectedTwitterHandle Expected Twitter handle.
-   * @param accessToken OAuth2 User Context Twitter access token.
+   * @param encryptedAccessToken OAuth2 User Context Twitter access token encrypted. In Chainlink Functions secret format.
    * @param claimFundsImmediately Should we claim funds immediately.
    */
   function claimTwitterHandle(
     string calldata expectedTwitterHandle,
-    string calldata accessToken,
+    bytes calldata encryptedAccessToken,
     bool claimFundsImmediately
   ) public returns (bytes32) {
+
+    assert(encryptedAccessToken.length > 0);
+
     Functions.Request memory req;
     req.initializeRequest(Functions.Location.Inline, Functions.CodeLanguage.JavaScript, FUNCTION_CODE);
 
-    string[] memory args = new string[](1);
-    args[0] = accessToken;
-    req.addArgs(args);
+    req.addInlineSecrets(encryptedAccessToken);
 
     bytes32 assignedReqID = sendRequest(req, SUBSCRIPTION_ID, GAS_LIMIT);
 

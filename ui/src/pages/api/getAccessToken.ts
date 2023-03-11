@@ -9,7 +9,7 @@ export default async function handler(
   const { state, code, redirectBaseUrl, } = req.query;
 
   if (!Boolean(state) || !Boolean(code) || !Boolean(redirectBaseUrl)) {
-    res.status(500).json({ error: "One of arguments was null.", isError: true});
+    res.status(500).json({ error: "One of arguments was null.", isError: true });
   }
 
   let { authClient, client } = GetClients(redirectBaseUrl as string | undefined);
@@ -23,7 +23,7 @@ export default async function handler(
   await authClient.requestAccessToken(code as string);
 
   const token = authClient.token?.access_token;
-  const user = await client.users.findMyUser({"user.fields": ['profile_image_url', 'username']});
+  const user = await client.users.findMyUser({ "user.fields": ['profile_image_url', 'username'] });
   const userName = user?.data?.username;
   const imageUrl = user?.data?.profile_image_url;
 
