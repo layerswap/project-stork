@@ -135,13 +135,14 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ![Stork Architecture](/assets/Stork-Architecture.png)
 
 ## Demo
-Check out how simple is using Stork! [Whatch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
+Check out how simple is using Stork! [Watch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
 
 ## Roadmap
 
 - [x] Implement MVP (for ETHDenver Hackathon)
 - [x] Make claim transactions gasless
 - [x] Make AccessToken encrypted
+- [ ] Make a 2FA for claimning assets (AccessToken only is not enough)
 - [ ] Improve privacy of transactions
 - [ ] Code cleanup, restructure repository
 - [ ] Add support of ETH, ERC20 tokens
