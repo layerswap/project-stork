@@ -8,6 +8,8 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
 
 >:warning: It is important to note that Stork is a project developed during a hackathon, where the main objective was to create a working product rapidly. Hence, the smart contracts used in the project have yet to be audited and are not intended for deployment in production environments.
 
+P.S. :gift: StorkApp won Chainlink and OpenZeppelin bounties at ETHDenver23 Hackathon.
+
 ## Table of Contents
 
 - [Stork - Alpha](#stork---alpha)
