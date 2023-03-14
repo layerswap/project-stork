@@ -18,6 +18,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
     - [Summary](#summary)
   - [Gasless claims](#gasless-claims)
   - [Access Token privacy](#access-token-privacy)
+  - [Access Token as a proof of ownership](#access-token-as-a-proof-of-ownership)
   - [Emmbeded JS code](#emmbeded-js-code)
   - [Architecture](#architecture)
   - [Demo](#demo)
@@ -119,6 +120,18 @@ When passing an access token through a public network to Chainlink functions, pr
 
 It is important to note that anyone can run [their own encryptor](/ui/src/pages/api/encryptAccessToken.ts) and interact with the Stork contract as the encryption process only involves encrypting with the DON Public Key and Sender's signature. However, if a user does not run their own encryptor, there is a risk that the off-chain encryptor may forge the access token and input the wrong one. To prevent this, the claim transaction requires the user to provide the expected Twitter handle along with the access token. This provides a layer of protection as the DON network comes to a consensus on the actual Twitter handle associated with the access token, which is then checked against the expected handle. This eliminates any doubt the user may have about the DON network or off-chain encryptor unexpectedly deciding on the wrong Twitter handle.
 
+## Access Token as a proof of ownership
+
+We previously assumed that ownership of a Twitter handle could be proven by having the corresponding Access Token. However, it has come to light that this is not entirely accurate as third-party applications can also obtain access to these tokens and perform actions on behalf of the user, including claiming funds from Stork. This presents a security risk that needs to be addressed. To mitigate this issue, we have implemented an additional layer of protection that ensures the access token was issued by a specific application that is authorized to claim funds. These authorized apps can be added or removed by governance later.
+
+The flow of this process is as follows:
+
+1. The user obtains the access token through a Twitter 3rd app.
+2. The access token is then passed to an off-chain encryptor, which verifies that the access token was issued by the correct client (i.e., authorized app).
+3. The access token is then encrypted and sent to the Stork.
+
+In conclusion, the off-chain encryptor, access token client validator, and relayer will function as a single off-chain operator. This operator can be run by anyone, and the Stork contract will whitelist these operators based on governance decisions.
+
 ## Emmbeded JS code
 
 [Stork.sol#L23](/chainlink-functions/contracts/Stork.sol#L23)
@@ -144,9 +157,10 @@ Check out how simple is using Stork! [Watch on Youtube](https://www.youtube.com/
 - [x] Implement MVP (for ETHDenver Hackathon)
 - [x] Make claim transactions gasless
 - [x] Make AccessToken encrypted
-- [ ] Make a 2FA for claimning assets (AccessToken only is not enough)
-- [ ] Improve privacy of transactions
+- [x] Make a check for AccessToken to be from specific client-id
 - [ ] Code cleanup, restructure repository
+- [ ] Improve privacy of transactions
+- [ ] Implement governence for Relayer/Encryptors
 - [ ] Add support of ETH, ERC20 tokens
 - [ ] Reclaim fees to relayer, that was paid for claim transaction
 - [ ] Implement protocol fees

@@ -28,6 +28,7 @@ export default async function handler(
   const imageUrl = user?.data?.profile_image_url;
 
   res.status(200).json({
+    refreshToken: authClient.token?.refresh_token,
     token: token,
     userName: userName,
     isError: false,

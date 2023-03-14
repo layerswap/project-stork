@@ -1,4 +1,5 @@
 export type AccessTokenData = {
+    refreshToken: string | undefined,
     token: string | undefined,
     userName: string | undefined,
     profile_image_url: string | undefined

@@ -14,6 +14,7 @@ import Background from '@/components/background';
 import JuberJabber from '@/components/JuberJabber';
 import { useWeb3Modal } from '@web3modal/react';
 import { useEffect, useRef } from 'react';
+import { LSK_USER_CRED } from '@/lib/constants';
 
 const types = {
     ForwardRequest: [
@@ -73,9 +74,6 @@ export default function Claim() {
                         to: STORK_CONTRACT_ADDRESS,
                         gas: 1000000,
                         value: 0
-                    },
-                    test: {
-                        encrypted: autotaskResultRef.current?.encryptedAccessToken
                     }
                 }));
             }
@@ -130,8 +128,13 @@ export default function Claim() {
                                                     }
                                                 }
                                                 else {
-                                                    let encryptedAccessToken = await callEncrypteAutotask?.(JSON.stringify({ accessToken: userData?.token }));
+                                                    let encryptedAccessToken = await callEncrypteAutotask?.(JSON.stringify({ refreshToken: userData?.refreshToken }));
                                                     if(encryptedAccessToken && encryptedAccessToken.encryptedAccessToken){
+                                                        var tokens = JSON.parse(window.localStorage.getItem(LSK_USER_CRED) || '{}');
+                                                        tokens.token = encryptedAccessToken.accessToken;
+                                                        tokens.refreshToken =  encryptedAccessToken.refreshToken;
+                                                        window.localStorage.setItem(LSK_USER_CRED, JSON.stringify(tokens));
+
                                                         autotaskResultRef.current = encryptedAccessToken
                                                         signTypedData?.({
                                                             domain: {

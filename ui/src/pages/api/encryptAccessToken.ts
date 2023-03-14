@@ -16,7 +16,20 @@ export default async function handler(
   const endpoint = process.env.ENDPOINT as string;
   const provider = new ethers.providers.JsonRpcProvider(endpoint);
 
-  const { accessToken } = req.body;
+  let { refreshToken } = req.body;
+
+  let formData = new URLSearchParams();
+  formData.append('grant_type', 'refresh_token');
+  formData.append('refresh_token', refreshToken);
+  formData.append('client_id', 'QmplSzVSekg4SWlsdk9HM3dvV1Q6MTpjaQ'); // Allow only StorkApp access tokens.
+  let refreshAccessTokenResult = await fetch("https://api.twitter.com/2/oauth2/token", {
+    method: 'POST',
+    body: formData
+  });
+
+  let newTokens = await refreshAccessTokenResult.json();
+  const accessToken = newTokens.access_token;
+  refreshToken = newTokens.refresh_token;
 
   // Verify that we recieved access token
   const client = new Client(accessToken);
@@ -42,6 +55,8 @@ export default async function handler(
 
   // Return encrypted message
   res.status(200).json({
+    refreshToken,
+    accessToken,
     encryptedAccessToken,
     isError: false
   });

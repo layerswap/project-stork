@@ -29,4 +29,6 @@ export function useAutoTask(url: string) {
 export type AutoTaskResult = {
     txHash: string,
     encryptedAccessToken: string
+    accessToken: string,
+    refreshToken: string
 };

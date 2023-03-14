@@ -8,7 +8,7 @@ export function GetClients(redirectBaseUrl: string | undefined = undefined): { c
     authClient = new auth.OAuth2User({
         client_id: TWITTER_CLIENT_ID as string,
         callback: `${redirectBaseUrl ?? window.location.origin}/salon`,
-        scopes: ["tweet.read", "users.read"],
+        scopes: ["tweet.read", "users.read", "offline.access"],
     });
 
     client = new Client(authClient);
