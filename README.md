@@ -137,7 +137,7 @@ In conclusion, the off-chain encryptor, access token client validator, and relay
 
 Once the access token has been transmitted securely to the DON Network, it is crucial to ensure that malicious DON nodes cannot use the access token to remap Twitter handles to their own addresses. This can be addressed by considering the limited lifetime of the access token, which is valid for a fixed period (2 hours in the case of Twitter). A DON node attempting to exploit Stork using the access token will have a two-hour window to do so. However, after this time period, the access token will be invalid and cannot be used to claim assets.
 
-To mitigate the risk of malicious DON nodes, we have implemented a [simple time lock](/chainlink-functions/contracts/Stork.sol#90) mechanism that prevents the remapping of msg.Sender with a new Twitter handle for two hours. This ensures that even if a malicious DON node has access to the access token, they cannot use it to exploit the system beyond the two-hour time period. The access token they had access to becomes invalid after the time lock, rendering it powerless.
+To mitigate the risk of malicious DON nodes, we have implemented a [simple time lock](/chainlink-functions/contracts/Stork.sol#90) mechanism that prevents the remapping of `msg.Sender` with a Twitter handle for 1 day. This ensures that even if a malicious DON node has access to the access token, they cannot use it to exploit the system beyond the two-hour time period. The access token they had access to becomes invalid after the time lock, rendering it powerless.
 
 
 ## Emmbeded JS code
@@ -170,7 +170,7 @@ Stork is a promising project that aims to leverage social identity for transacti
 - [x] Make claim transactions gasless
 - [x] Make AccessToken encrypted
 - [x] Make a check for AccessToken to be from specific client-id
-- [ ] Allow remmaping of twitter handle after 2 hours (ensuring access token is )
+- [x] Implement timelock for remaping handles
 - [ ] Code cleanup, restructure repository
 - [ ] Improve privacy of transactions
 - [ ] Implement governence for Relayer/Encryptors
