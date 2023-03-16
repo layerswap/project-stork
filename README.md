@@ -71,7 +71,7 @@ function claimFunds() public
 
 This function aims to determine if `msg.Sender` has an associated Twitter handle. If a handle is found, the function will release the previously locked funds to `msg.Sender`.
 
-To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address, without requiring any further interaction with the contract.
+To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address without requiring any further interaction with the contract.
 
 ### Summary
 
@@ -83,13 +83,13 @@ When the receiver wishes to claim the funds, they authorize in Twitter and provi
 
 The current process of claiming funds in the Stork system requires a minimum of one transaction, which necessitates paying gas fees. This approach presents a problem if the user has no `MATIC`. The issue is compounded as Stork is focused on making onboarding to crypto more accessible. To resolve this, [Meta transactions](https://docs.openzeppelin.com/contracts/4.x/api/metatx) and Relayers can be leveraged. Additionally, it is important to note that the beta version of Chainlink Functions only permits whitelisted addresses to call the DON network. Thankfully, with meta-transactions (because of Relayer), both problems can be addressed with a single solution.
 
-> Gasless meta-transactions offer users a more seamless experience, and potentially one where they don’t have to spend as much money to engage with the blockchain. This method gives users the option to sign a transaction for free and have it securely executed by a third party, with that other party paying the gas to execute the transaction.
+> Gasless meta-transactions offer users a more seamless experience and potentially one where they don’t have to spend as much money to engage with the blockchain. This method gives users the option to sign a transaction for free and have it securely executed by a third party, with that other party paying the gas to execute the transaction.
 >
 > A gasless meta-transaction relay can be easily and securely implemented using OpenZeppelin Defender by way of a Relayer. A Defender Relay allows you to send transactions easily and handles private key storage, transaction signing, nonce management, gas estimation, and automatic resubmissions if necessary.
 >
 > Check out [OpenZeppelin Meta Transactions Documentation](https://docs.openzeppelin.com/defender/guide-metatx).
 
-This is how the process looks like with meta transactions:
+This is what the process looks like with meta transactions:
 
 1. The user will sign a transaction message.
 2. The signed transaction message will be sent to the [Relayer](/ui/src/pages/api/relayTransaction.ts).
@@ -115,7 +115,7 @@ function claimTwitterHandle(
 When passing an access token through a public network to Chainlink functions, privacy is at risk as it may expose users' personal information such as email and name. To mitigate this issue, an encryption solution has been implemented. This involves encrypting the access token with the DON Public Key before transmitting it over the network. The steps involved in this process are:
 
 1. The user obtains an access token from Twitter API.
-2. The access token is encrypted with the [DON Public Key](https://docs.chain.link/chainlink-functions/tutorials/api-use-secrets-offchain) using an [off-chain encryptor]((/ui/src/pages/api/encryptAccessToken.ts)).
+2. The access token is encrypted with the [DON Public Key](https://docs.chain.link/chainlink-functions/tutorials/api-use-secrets-offchain) using an [off-chain encryptor](/ui/src/pages/api/encryptAccessToken.ts).
 3. The encrypted access token is then passed to the Stork contract to ensure that only DON Nodes can access it.
 4. The Chainlink javascript function receives the encrypted access token, decrypts it, and calls Twitter to verify it.
 
@@ -123,7 +123,7 @@ It is important to note that anyone can run [their own encryptor](/ui/src/pages/
 
 ## Access Token as a proof of ownership
 
-We previously assumed that ownership of a Twitter handle could be proven by having the corresponding Access Token. However, it has come to light that this is not entirely accurate as third-party applications can also obtain access to these tokens and perform actions on behalf of the user, including claiming funds from Stork. This presents a security risk that needs to be addressed. To mitigate this issue, we have implemented an additional layer of protection that ensures the access token was issued by a specific application that is authorized to claim funds. These authorized apps can be added or removed in Stork contract by governance later.
+We previously assumed that ownership of a Twitter handle could be proven by having the corresponding Access Token. However, it has come to light that this is not entirely accurate, as third-party applications can also obtain access to these tokens and perform actions on behalf of the user, including claiming funds from Stork. This presents a security risk that needs to be addressed. To mitigate this issue, we have implemented an additional layer of protection that ensures the access token was issued by a specific application that is authorized to claim funds. These authorized apps can be added or removed in Stork contract by governance later.
 
 The flow of this process is as follows:
 
@@ -131,13 +131,13 @@ The flow of this process is as follows:
 2. The access token is then passed to an off-chain encryptor, which verifies that the access token was issued by the correct client (i.e., authorized app).
 3. The access token is then encrypted and sent to the Stork.
 
-In conclusion, the off-chain encryptor, access token client validator, and relayer will function as a single off-chain operator. This operator can be run by anyone, and the Stork contract will whitelist these operators based on governance decisions.
+In conclusion, the off-chain encryptor, access token client validator, and Relayer will function as a single off-chain operator. This operator can be run by anyone, and the Stork contract will whitelist these operators based on governance decisions.
 
 ## Malicious DON Network Nodes Exploiting User Access Tokens
 
 Once the access token has been transmitted securely to the DON Network, it is crucial to ensure that malicious DON nodes cannot use the access token to remap Twitter handles to their own addresses. This can be addressed by considering the limited lifetime of the access token, which is valid for a fixed period (2 hours in the case of Twitter). A DON node attempting to exploit Stork using the access token will have a two-hour window to do so. However, after this time period, the access token will be invalid and cannot be used to claim assets.
 
-To mitigate the risk of malicious DON nodes, we have implemented a [simple time lock](/chainlink-functions/contracts/Stork.sol#90) mechanism that prevents the remapping of `msg.Sender` with a Twitter handle for 1 day. This ensures that even if a malicious DON node has access to the access token, they cannot use it to exploit the system beyond the two-hour time period. The access token they had access to becomes invalid after the time lock, rendering it powerless.
+To mitigate the risk of malicious DON nodes, we have implemented a [simple time lock](/chainlink-functions/contracts/Stork.sol#90) mechanism that prevents the remapping of `msg.Sender` with a Twitter handle for 1 day. This ensures that even if a malicious DON node has the access token, they cannot use it to exploit the system beyond the two-hours time period. The access token they had becomes invalid after the time lock, rendering it powerless.
 
 
 ## Emmbeded JS code
@@ -158,7 +158,7 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ![Stork Architecture](/assets/Stork-Architecture.png)
 
 ## Demo
-Check out how simple is using Stork! [Watch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
+Check out how simple using Stork is! [Watch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
 
 ## Conclusion
 
@@ -170,21 +170,22 @@ Stork is a promising project that aims to leverage social identity for transacti
 - [x] Make claim transactions gasless
 - [x] Make AccessToken encrypted
 - [x] Make a check for AccessToken to be from specific client-id
-- [x] Implement timelock for remaping handles
+- [x] Implement timelock for remapping handles
 - [ ] Code cleanup, restructure repository
 - [ ] Improve privacy of transactions
-- [ ] Implement governence for Relayer/Encryptors
+- [ ] Implement governance for Relayer/Encryptors
 - [ ] Add support of ETH, ERC20 tokens
-- [ ] Reclaim fees to relayer, that was paid for claim transaction
+- [ ] Reclaim fees to Relayer, that was paid for claim transaction
 - [ ] Implement protocol fees
 - [ ] Allow sender to reclaim sent funds
-- [ ] Abstract awaiy smart contract to use different social identities
+- [ ] Abstract smart contract to use different social identities
 - [ ] Add support of other social identities (Reddit, Facebook, Mastordom ...)
 - [ ] Initial Security review/audit
 - [ ] Improve Relayer to have a queue of transactions
-- [ ] Write and publish whitepaper
+- [ ] Write and publish a whitepaper
 - [ ] Public Beta launch
-- [ ] 
+
+
 ## Run, deploy, and test
 
 1. [Setup your environment](https://docs.chain.link/chainlink-functions/getting-started#set-up-your-environment)
@@ -221,7 +222,7 @@ Configure your second account to only sign the transaction by adding `PRIVATE_KE
 npx hardhat stork-forwarder-request --contract STORK_CONTRACT_ADDRESS --accesstoken TWITTER_ACCESS_TOKEN --network mumbai --twitterhandle TWITTER_HANDLE
 ```
 
-Make sure you have `Forwarder` contract address configured in [network-config](chainlink-functions/network-config.js).
+Ensure you have the `Forwarder` contract address configured in [network-config](chainlink-functions/network-config.js).
 
 ## Contracts and Scripts
 
