@@ -19,7 +19,7 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
   - [Gasless claims](#gasless-claims)
   - [Access Token privacy](#access-token-privacy)
   - [Access Token as a proof of ownership](#access-token-as-a-proof-of-ownership)
-  - [DON Network's access to user's access token](#don-networks-access-to-users-access-token)
+  - [Malicious DON Network Nodes Exploiting User Access Tokens](#malicious-don-network-nodes-exploiting-user-access-tokens)
   - [Emmbeded JS code](#emmbeded-js-code)
   - [Architecture](#architecture)
   - [Demo](#demo)
@@ -133,7 +133,7 @@ The flow of this process is as follows:
 
 In conclusion, the off-chain encryptor, access token client validator, and relayer will function as a single off-chain operator. This operator can be run by anyone, and the Stork contract will whitelist these operators based on governance decisions.
 
-## DON Network's access to user's access token
+## Malicious DON Network Nodes Exploiting User Access Tokens
 
 Once the access token has been transmitted securely to the DON Network, it is crucial to ensure that malicious DON nodes cannot use the access token to remap Twitter handles to their own addresses. This can be addressed by considering the limited lifetime of the access token, which is valid for a fixed period (2 hours in the case of Twitter). A DON node attempting to exploit Stork using the access token will have a two-hour window to do so. However, after this time period, the access token will be invalid and cannot be used to claim assets.
 
