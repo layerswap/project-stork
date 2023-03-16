@@ -19,11 +19,12 @@ Stork's objective is to enable users to send digital assets to a Twitter handle 
   - [Gasless claims](#gasless-claims)
   - [Access Token privacy](#access-token-privacy)
   - [Access Token as a proof of ownership](#access-token-as-a-proof-of-ownership)
+  - [DON Network's access to user's access token](#don-networks-access-to-users-access-token)
   - [Emmbeded JS code](#emmbeded-js-code)
   - [Architecture](#architecture)
   - [Demo](#demo)
-  - [Roadmap](#roadmap)
   - [Conclusion](#conclusion)
+  - [Roadmap](#roadmap)
   - [Run, deploy, and test](#run-deploy-and-test)
   - [Contracts and Scripts](#contracts-and-scripts)
   - [Contributors](#contributors)
@@ -68,7 +69,7 @@ Once this verification is complete, the user can claim the funds by calling the 
 function claimFunds() public
 ```
 
-This function aims to determine if `msg.Sender` has an associated Twitter handle. If a handle is found, the function will release the previously locked funds to the specified handle.
+This function aims to determine if `msg.Sender` has an associated Twitter handle. If a handle is found, the function will release the previously locked funds to `msg.Sender`.
 
 To prevent the need for multiple transactions, the `claimFundsImmediately` parameter can be set to `true` during the initial `claimTwitterHandle` call. Doing so will allow the funds to be claimed immediately after the Twitter handle is successfully verified and mapped to the on-chain address, without requiring any further interaction with the contract.
 
@@ -76,7 +77,7 @@ To prevent the need for multiple transactions, the `claimFundsImmediately` param
 
 The Stork contract is an intermediary between the sender and the receiver of digital assets. The sender initiates the transaction by providing the Twitter handle of the intended recipient to the Stork contract. The contract holds the funds in escrow until the receiver proves their ownership of the Twitter handle.
 
-When the receiver wishes to claim the funds, they authorize Twitter and provide an encrypted access token to the Chainlink decentralized oracle nodes (DON). The DON nodes independently verify the access token with the Twitter API and come to a consensus on the claim's validity. Once consensus is reached, the DON nodes write back to the Stork contract the Twitter handle of the user. This provides proof to the contract that the sender claims the Twitter handle and is entitled to receive the funds. At this point, the funds are released to the intended recipient.
+When the receiver wishes to claim the funds, they authorize in Twitter and provide an encrypted access token to the Chainlink decentralized oracle nodes (DON). The DON nodes independently verify the access token with the Twitter API and come to a consensus on the claim's validity. Once consensus is reached, the DON nodes write back to the Stork contract the Twitter handle of the user. This provides proof to the contract that the sender owns the Twitter handle and is entitled to receive the funds. At this point, the funds are released to the intended recipient.
 
 ## Gasless claims
 
@@ -88,7 +89,7 @@ The current process of claiming funds in the Stork system requires a minimum of 
 >
 > Check out [OpenZeppelin Meta Transactions Documentation](https://docs.openzeppelin.com/defender/guide-metatx).
 
-This is how the process will look like with meta transactions:
+This is how the process looks like with meta transactions:
 
 1. The user will sign a transaction message.
 2. The signed transaction message will be sent to the [Relayer](/ui/src/pages/api/relayTransaction.ts).
@@ -122,15 +123,22 @@ It is important to note that anyone can run [their own encryptor](/ui/src/pages/
 
 ## Access Token as a proof of ownership
 
-We previously assumed that ownership of a Twitter handle could be proven by having the corresponding Access Token. However, it has come to light that this is not entirely accurate as third-party applications can also obtain access to these tokens and perform actions on behalf of the user, including claiming funds from Stork. This presents a security risk that needs to be addressed. To mitigate this issue, we have implemented an additional layer of protection that ensures the access token was issued by a specific application that is authorized to claim funds. These authorized apps can be added or removed by governance later.
+We previously assumed that ownership of a Twitter handle could be proven by having the corresponding Access Token. However, it has come to light that this is not entirely accurate as third-party applications can also obtain access to these tokens and perform actions on behalf of the user, including claiming funds from Stork. This presents a security risk that needs to be addressed. To mitigate this issue, we have implemented an additional layer of protection that ensures the access token was issued by a specific application that is authorized to claim funds. These authorized apps can be added or removed in Stork contract by governance later.
 
 The flow of this process is as follows:
 
-1. The user obtains the access token through a Twitter 3rd app.
+1. The user obtains the access token through a Twitter 3rd party app.
 2. The access token is then passed to an off-chain encryptor, which verifies that the access token was issued by the correct client (i.e., authorized app).
 3. The access token is then encrypted and sent to the Stork.
 
 In conclusion, the off-chain encryptor, access token client validator, and relayer will function as a single off-chain operator. This operator can be run by anyone, and the Stork contract will whitelist these operators based on governance decisions.
+
+## DON Network's access to user's access token
+
+Once the access token has been transmitted securely to the DON Network, it is crucial to ensure that malicious DON nodes cannot use the access token to remap Twitter handles to their own addresses. This can be addressed by considering the limited lifetime of the access token, which is valid for a fixed period (2 hours in the case of Twitter). A DON node attempting to exploit Stork using the access token will have a two-hour window to do so. However, after this time period, the access token will be invalid and cannot be used to claim assets.
+
+To mitigate the risk of malicious DON nodes, we have implemented a [simple time lock](/chainlink-functions/contracts/Stork.sol#90) mechanism that prevents the remapping of msg.Sender with a new Twitter handle for two hours. This ensures that even if a malicious DON node has access to the access token, they cannot use it to exploit the system beyond the two-hour time period. The access token they had access to becomes invalid after the time lock, rendering it powerless.
+
 
 ## Emmbeded JS code
 
@@ -152,12 +160,17 @@ The DON network operates by having its nodes execute a provided JavaScript code.
 ## Demo
 Check out how simple is using Stork! [Watch on Youtube](https://www.youtube.com/watch?v=R1ZVhTwik2s).
 
+## Conclusion
+
+Stork is a promising project that aims to leverage social identity for transacting digital assets. While it is not ready for production use, it provides a solid foundation for further development and exploration of the use of Chainlink Functions for on-chain social identity verification. The project code can be found on the links provided below.
+
 ## Roadmap
 
 - [x] Implement MVP (for ETHDenver Hackathon)
 - [x] Make claim transactions gasless
 - [x] Make AccessToken encrypted
 - [x] Make a check for AccessToken to be from specific client-id
+- [ ] Allow remmaping of twitter handle after 2 hours (ensuring access token is )
 - [ ] Code cleanup, restructure repository
 - [ ] Improve privacy of transactions
 - [ ] Implement governence for Relayer/Encryptors
@@ -171,11 +184,7 @@ Check out how simple is using Stork! [Watch on Youtube](https://www.youtube.com/
 - [ ] Improve Relayer to have a queue of transactions
 - [ ] Write and publish whitepaper
 - [ ] Public Beta launch
-
-## Conclusion
-
-Stork is a promising project that aims to leverage social identity for transacting digital assets. While it is not ready for production use, it provides a solid foundation for further development and exploration of the use of Chainlink Functions for on-chain social identity verification. The project code can be found on the links provided below.
-
+- [ ] 
 ## Run, deploy, and test
 
 1. [Setup your environment](https://docs.chain.link/chainlink-functions/getting-started#set-up-your-environment)

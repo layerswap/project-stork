@@ -17,9 +17,11 @@ contract Stork is FunctionsClient, ConfirmedOwner, ERC2771Context {
   mapping(bytes32 => address) public requestAddresses;
   mapping(bytes32 => string) public requestExpectedTwitterHandles;
   mapping(bytes32 => bool) public requestClaimFundsImmediately;
+  mapping(string => uint) public twitterHandleTimeLocks;
   mapping(string => uint256) public twitterBalances;
   mapping(address => string) public addressTwitterHandles;
 
+  uint public constant lockDuration = 1 days;
   uint64 internal constant SUBSCRIPTION_ID = 159;
   uint32 internal constant GAS_LIMIT = 300000;
   string internal constant FUNCTION_CODE =
@@ -83,6 +85,11 @@ contract Stork is FunctionsClient, ConfirmedOwner, ERC2771Context {
     assert(keccak256(bytes(requestExpectedTwitterHandles[requestId])) == keccak256(response));
 
     string memory twitterHandle = string(response);
+
+    // Don't allow to reclaim assets 
+    require(block.timestamp >= twitterHandleTimeLocks[twitterHandle], "You can't reclaim handle for 1 day.");
+    twitterHandleTimeLocks[twitterHandle] = block.timestamp + lockDuration;
+
     addressTwitterHandles[requestAddresses[requestId]] = twitterHandle;
 
     uint256 balance = twitterBalances[twitterHandle];
